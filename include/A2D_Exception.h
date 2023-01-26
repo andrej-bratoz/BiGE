@@ -1,6 +1,6 @@
 #pragma once
 
-#include "A2D_Core.h"
+#include <A2D_Core.h>
 #include <exception>
 
 namespace A2D

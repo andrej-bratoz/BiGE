@@ -1,4 +1,4 @@
-#include "../inc/A2D_App.h"
+#include <A2D_App.h>
 
 WPARAM ANDRO2D_API A2D::A2DApp::Run(const Window& target)
 {

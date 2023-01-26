@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../A2D_Core.h"
-#include "A2D_ControlBase.h"
+#include <A2D_Core.h>
+#include <a2d_controls/A2D_ControlBase.h>
 
 namespace A2D
 {

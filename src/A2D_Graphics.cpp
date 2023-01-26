@@ -1,4 +1,4 @@
-#include "../inc/A2D_Graphics.h"
+#include <A2D_Graphics.h>
 
 BYTE A2D::Color::Alpha() const
 {

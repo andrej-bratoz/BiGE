@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../inc/A2D_Exception.h"
+#include <A2D_Exception.h>
 
 A2D::Exception::Exception(const char* data)
 {

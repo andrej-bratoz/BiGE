@@ -27,8 +27,15 @@ namespace A2D
 		virtual HWND GetHandle() const = 0;
 	};
 
+#if defined(UNICODE) || defined(_UNICODE) || defined(_MBCS)
 	typedef wchar_t* A2D_STRING;
 	typedef const wchar_t* A2D_CONST_STRING;
+	#define A2D_TEXT(x) L##x
+#else
+	typedef char* A2D_STRING;
+	typedef const char* A2D_CONST_STRING;
+	#define A2D_TEXT(x) x
+#endif
 
 	namespace Internal
 	{

@@ -1,4 +1,4 @@
-#include "../inc/A2D_Core.h"
+#include <A2D_Core.h>
 
 Gdiplus::GdiplusStartupInput g_GDI_START_INPUT;
 ULONG_PTR g_GDI_TOKEN;

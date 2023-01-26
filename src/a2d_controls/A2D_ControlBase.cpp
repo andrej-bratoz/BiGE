@@ -1,4 +1,4 @@
-#include "../../inc/controls/A2D_ControlBase.h"
+#include <a2d_controls/A2D_ControlBase.h>
 
 Control::Control(HWND parent) : m_parentHWnd(nullptr),
 								m_hWnd(nullptr),

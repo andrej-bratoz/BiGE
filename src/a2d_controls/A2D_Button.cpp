@@ -1,5 +1,5 @@
 
-#include "../../inc/controls/A2D_Button.h"
+#include <a2d_controls/A2D_Button.h>
 
 A2D::Controls::Button::Button(HWND parent) : Control(parent)
 {}
@@ -12,13 +12,13 @@ A2D::Controls::Button::Button(const Button& btn) : Control(btn.m_parentHWnd)
 
 void A2D::Controls::Button::SetText(A2D_CONST_STRING text) const
 {
-	SendMessageW(this->m_hWnd, WM_SETTEXT, 0, (LPARAM)text);
+	SendMessage(this->m_hWnd, WM_SETTEXT, 0, (LPARAM)text);
 }
 
 void A2D::Controls::Button::Create()
 {
-	this->m_hWnd = CreateWindow(L"BUTTON",
-		L"OK", 
+	this->m_hWnd = CreateWindow(TEXT("BUTTON"),
+		TEXT("OK"), 
 		WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
 		this->GetX(),
 		this->GetY(),

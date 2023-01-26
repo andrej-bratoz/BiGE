@@ -1,12 +1,23 @@
 #pragma once
 
 #include <vector>
-
-#include "../inc/A2D_Window.h"
-#include "../inc/A2D_Exception.h"
-#include "../inc/A2D_Graphics.h"
+#include <A2D_Window.h>
+#include <A2D_Exception.h>
+#include <A2D_Graphics.h>
 
 std::vector<std::shared_ptr<A2D::Window>> RegisteredWindows;
+
+namespace A2D {
+
+    A2D::Window* FindWnd(HWND hWnd)
+    {
+        for (const auto& win : RegisteredWindows)
+        {
+            if (win->GetHandle() == hWnd) return win;
+        }
+        return nullptr;
+    }
+}
 
 static LRESULT CALLBACK A2D_WindowProc(
     _In_ HWND   hwnd,
@@ -15,7 +26,7 @@ static LRESULT CALLBACK A2D_WindowProc(
     _In_ LPARAM lParam
 )
 {
-    auto window = A2D::Window::FindWindow(hwnd);
+    auto window = A2D::FindWnd(hwnd);
     if (window == nullptr) return DefWindowProcW(hwnd, uMsg, wParam, lParam);
     return window->WndProc(hwnd, uMsg, wParam, lParam);
 }
@@ -73,7 +84,8 @@ A2D::Window::Window(int width, int height, A2D_CONST_STRING title) : m_height(he
 																	 m_title(title),
 																	 m_hInstance(nullptr),
 																	 m_Handle(nullptr),
-																	 m_initialized(false)
+																	 m_initialized(false),
+                                                                     m_callbacks(new std::map<UINT,A2D::A2D_WINDOW_MESSAGE_CALLBACK>)
 {
     this->_controls = new ControlList;
 }
@@ -89,6 +101,7 @@ A2D::Window::Window(const Window& w)
     this->m_Handle = w.m_Handle;
     this->m_initialized = w.m_initialized;
     this->_controls = w._controls;
+    this->m_callbacks = new std::map<UINT, A2D::A2D_WINDOW_MESSAGE_CALLBACK>(*w.m_callbacks);
 }
 
 HWND A2D::Window::GetHandle() const
@@ -101,6 +114,12 @@ LRESULT A2D::Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
     HDC hdc;
     PAINTSTRUCT ps;
     WINDOWPOS* windowPos;
+
+    if (this->m_callbacks->count(message)) {
+        A2D::CallbackData cd{ .hwnd = hwnd, .message = message, .wParam = wParam, .lParam = lParam, .handled = false, .return_value = 0 };
+        m_callbacks->at(message)(cd);
+        if (cd.handled) return cd.return_value;
+    }
 
 	switch (message)
 	{
@@ -133,9 +152,9 @@ LRESULT A2D::Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
             EndPaint(hwnd, &ps);
             break;
 		default:
-           return DefWindowProcW(hwnd, message, wParam, lParam);
+           return DefWindowProc(hwnd, message, wParam, lParam);
 	}
-    return DefWindowProcW(hwnd, message, wParam, lParam);
+    return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
 int A2D::Window::GetHeight() const
@@ -173,15 +192,6 @@ void A2D::Window::AddControl(Control* c)
     c->Create();
 }
 
-A2D::Window* A2D::Window::FindWindowW(HWND hWnd)
-{
-    for (const auto& win : RegisteredWindows)
-    {
-        if (win->GetHandle() == hWnd) return win;
-    }
-    return nullptr;
-}
-
 void A2D::Window::OnPaint(HDC hDC, const PAINTSTRUCT& ps)
 {
     A2D::Graphics graphics(hDC);
@@ -199,4 +209,13 @@ void A2D::Window::OnPositionChanged()
 {
     SetWindowPos(this->GetHandle(), nullptr, this->m_posX,
         this->m_posY, this->m_width, this->m_height, SWP_SHOWWINDOW);
+}
+
+void A2D::Window::RegisterCallback(UINT message, A2D_WINDOW_MESSAGE_CALLBACK cb)
+{
+    if (this->m_callbacks->count(message))
+    {
+        this->m_callbacks->erase(message);
+    }
+    this->m_callbacks->insert(std::make_pair(message, cb));
 }
