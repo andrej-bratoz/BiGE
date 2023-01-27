@@ -7,6 +7,7 @@
 #include <strsafe.h>
 #include <gdiplus.h>
 #include <memory>
+#include <vector>
 
 
 #ifdef  ANDRO2D_LIB 
@@ -20,6 +21,19 @@
 
 namespace A2D
 {
+	class IWndProcObject;
+	typedef struct ANDRO2D_API _CallbackData {
+		HWND hwnd;
+		UINT message;
+		WPARAM wParam;
+		LPARAM lParam;
+		bool handled;
+		LRESULT return_value;
+		A2D::IWndProcObject* win;
+	}CallbackData;
+
+	typedef void (*A2D_WINDOW_MESSAGE_CALLBACK)(CallbackData& cb);
+
 	class ANDRO2D_API IHandleObject
 	{
 	public:
@@ -27,103 +41,48 @@ namespace A2D
 		virtual HWND GetHandle() const = 0;
 	};
 
+	class ANDRO2D_API IWndProcObject : public IHandleObject {
+	public:
+		virtual LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) = 0;
+		virtual void RegisterCallback(UINT message, A2D_WINDOW_MESSAGE_CALLBACK cb) = 0;
+		virtual ~IWndProcObject() {}
+	};
+
+
 #if defined(UNICODE) || defined(_UNICODE) || defined(_MBCS)
 	typedef wchar_t* A2D_STRING;
+	typedef std::wstring A2D_STRING_CLASS;
 	typedef const wchar_t* A2D_CONST_STRING;
+	#define A2D_TO_STRING std::to_wstring
 	#define A2D_TEXT(x) L##x
+	#define A2D_DEBUG OutputDebugStringW
+	typedef WNDCLASSEXW ANB_WNDCLASSEX;
+	#define A2D_CreateWidnow CreateWindowW
+	#define A2D_RegisterClassEx RegisterClassExW
+
 #else
 	typedef char* A2D_STRING;
 	typedef const char* A2D_CONST_STRING;
+	typedef std::string A2D_STRING_CLASS;
+	#define A2D_TO_STRING std::to_string
 	#define A2D_TEXT(x) x
+	#define A2D_DEBUG OutputDebugStringA
+	typedef WNDCLASSEXW ANB_WNDCLASSEX;
+	#define A2D_CreateWidnow CreateWindowA
+	#define A2D_RegisterClassEx RegisterClassExA
 #endif
+
+	#define CLASS_NAME(x) A2D_TEXT(#x) 
 
 	namespace Internal
 	{
 		int GdiStartup();
 		void GdiShutdown();
-
-		template <typename  T>
-		class List
-		{
-		public:
-			List()
-			{
-				_size = 128;
-				_data = static_cast<T*>(malloc(_size * sizeof(T)));
-				_count = 0;
-				RtlZeroMemory(_data, _size * sizeof(T));
-			}
-
-			List(const List& l)
-			{
-				_size = l._size;
-				_data = l._data;
-				_count = l._count;
-			}
-
-			void Add(T element)
-			{
-				_data[Count()] = element;
-				_count++;
-				if(_count == _size)
-				{
-					_size *= 2;
-					_data = static_cast<T*>(realloc(_data, _size));
-				}
-			}
-
-			int IndexOf(T element)
-			{
-				for(int i = 0; i < Count(); i++)
-				{
-					if (_data[i] == element) return i;
-				}
-				return -1;
-			}
-
-			void Get(int index, T* data)
-			{
-				*data = _data[index];
-			}
-			
-			int Count() const { return _count; }
-
-			int DeleteAt(int location)
-			{
-				if(location < Count() - 1)
-				{
-					for(int i = location; i < Count()-1; i++)
-					{
-						_data[i] = _data[i + 1];
-					}
-				}
-				else if(location >= Count() )
-				{
-					return 0;
-				}
-				_count--;
-				if(_size > _count*4)
-				{
-					_count = _count / 4;
-					_data = static_cast<T*>(realloc(static_cast<void*>(_data), _count));
-				}
-				return 1;
-			}
-
-			~List()
-			{
-				if (_data == nullptr) return;
-				free(_data);
-				_data = nullptr;
-			}
-
-		private:
-			int _count;
-			int _size;
-			T* _data;
-		};
-
 	}
-
 	
+	inline void DebugOut(const A2D_STRING_CLASS& cls) {
+		A2D_DEBUG(cls.c_str());
+	}	
+
+	void DeleteWindow(IWndProcObject* c);
 }

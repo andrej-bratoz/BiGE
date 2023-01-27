@@ -3,26 +3,15 @@
 #include <vector>
 #include <map>
 #include <functional>
-
 #include <A2D_Core.h>
+#include <a2d_controls/A2D_ControlBase.h>
 #include <a2d_controls/A2D_Button.h>
 
 #include <gdiplus.h>
 
 namespace A2D
 {
-	typedef struct ANDRO2D_API _CallbackData {
-		HWND hwnd; 
-		UINT message;
-		WPARAM wParam; 
-		LPARAM lParam;
-		bool handled;
-		LRESULT return_value;
-	}CallbackData;
-
-	typedef void (*A2D_WINDOW_MESSAGE_CALLBACK)(const CallbackData& cb);
-
-	class ANDRO2D_API Window : public IHandleObject
+	class ANDRO2D_API Window : public IWndProcObject
 	{
 	public:
 		Window(int width, int height, A2D_CONST_STRING title);
@@ -39,10 +28,9 @@ namespace A2D
 		int GetPositionX() const;
 		int GetPositionY() const;
 		
-		[[nodiscard]] const ControlList* Controls() const { return _controls; }
+		[[nodiscard]] const A2D::ControlList* Controls() const { return _controls; }
 		void AddControl(Control* c);
-		void RegisterCallback(UINT message, A2D_WINDOW_MESSAGE_CALLBACK cb);
-
+		virtual void RegisterCallback(UINT message, A2D_WINDOW_MESSAGE_CALLBACK cb) override;
 		//
 		virtual void OnPaint(HDC hDC, const PAINTSTRUCT& ps);
 		virtual void OnResize();
@@ -61,10 +49,8 @@ namespace A2D
 		HINSTANCE m_hInstance;
 		HWND m_Handle;
 		bool m_initialized;
-		ControlList *_controls;
+		A2D::ControlList *_controls;
 		std::map<UINT, A2D_WINDOW_MESSAGE_CALLBACK> *m_callbacks;
 	};
-
-	static std::vector<Window*> RegisteredWindows;
-	Window* FindWnd(HWND hWnd);
+	IWndProcObject* FindWnd(HWND hWnd);
 }

@@ -5,13 +5,13 @@
 #include <A2D_Exception.h>
 #include <A2D_Graphics.h>
 
-std::vector<std::shared_ptr<A2D::Window>> RegisteredWindows;
+extern std::vector<A2D::IWndProcObject*>* RegisteredWindows;
 
 namespace A2D {
 
-    A2D::Window* FindWnd(HWND hWnd)
+    A2D::IWndProcObject* FindWnd(HWND hWnd)
     {
-        for (const auto& win : RegisteredWindows)
+        for (const auto& win : *RegisteredWindows)
         {
             if (win->GetHandle() == hWnd) return win;
         }
@@ -33,7 +33,7 @@ static LRESULT CALLBACK A2D_WindowProc(
 
 void A2D::Window::InitializeInternal()
 {
-	m_hInstance = GetModuleHandleW(nullptr);
+	m_hInstance = GetModuleHandle(nullptr);
     WNDCLASSEXW wcex;
     wcex.cbSize = sizeof(WNDCLASSEX);
     wcex.style = CS_HREDRAW | CS_VREDRAW;
@@ -59,7 +59,7 @@ void A2D::Window::InitializeInternal()
     this->m_Handle = CreateWindowW(wcex.lpszClassName, LPWSTR(this->m_title), WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, m_hInstance, nullptr);
     if (!GetHandle()) throw WindowException("CreateWindow Failed");
-    RegisteredWindows.push_back(this);
+    RegisteredWindows->push_back(this);
 }
 
 void A2D::Window::Show()
@@ -116,7 +116,7 @@ LRESULT A2D::Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
     WINDOWPOS* windowPos;
 
     if (this->m_callbacks->count(message)) {
-        A2D::CallbackData cd{ .hwnd = hwnd, .message = message, .wParam = wParam, .lParam = lParam, .handled = false, .return_value = 0 };
+        A2D::CallbackData cd{ .hwnd = hwnd, .message = message, .wParam = wParam, .lParam = lParam, .handled = false, .return_value = 0, .win=this };
         m_callbacks->at(message)(cd);
         if (cd.handled) return cd.return_value;
     }
@@ -126,14 +126,14 @@ LRESULT A2D::Window::WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 		case WM_QUIT:
         case WM_DESTROY:
             DestroyWindow(this->GetHandle());
-            RegisteredWindows.erase(
-            std::remove_if(RegisteredWindows.begin(), 
-                RegisteredWindows.end(), 
-                [this](Window* w) -> bool
+            RegisteredWindows->erase(
+            std::remove_if(RegisteredWindows->begin(), 
+                RegisteredWindows->end(), 
+                [this](IWndProcObject* w) -> bool
                 {
                     return this->GetHandle() == w->GetHandle();
                 }),
-                RegisteredWindows.end());
+                RegisteredWindows->end());
          	PostQuitMessage(0);
 			break;
         case WM_WINDOWPOSCHANGED: //https://docs.microsoft.com/en-us/windows/win32/winmsg/wm-windowposchanged
@@ -188,7 +188,7 @@ int A2D::Window::GetPositionY() const
 
 void A2D::Window::AddControl(Control* c)
 {
-	this->_controls->Add(c);
+	this->_controls->push_back(c);
     c->Create();
 }
 

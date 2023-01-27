@@ -7,14 +7,14 @@ namespace A2D
 {
 	namespace Controls
 	{
-		
-		class ANDRO2D_API Button : public Control
+		class ANDRO2D_API Button : public A2D::Control
 		{
 		public:
 			Button(HWND parent);
 			Button(const Button&);
 			void SetText(A2D_CONST_STRING text) const;
 			void Create() override;
+			virtual LRESULT WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) override;
 			virtual ~Button();
 		protected:
 
