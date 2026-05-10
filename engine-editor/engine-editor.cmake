@@ -1,0 +1,16 @@
+macro(build_engine_editor NAME ROOT_DIR ENGINE_LIB)
+    file(GLOB HEADER_FILES_BIGE_EDITOR "${ROOT_DIR}/engine-editor/*h")
+    file(GLOB SOURCE_FILES_BIGE_EDITOR "${ROOT_DIR}/engine-editor/*cpp")
+    add_executable(${NAME} ${HEADER_FILES_BIGE_EDITOR} ${SOURCE_FILES_BIGE_EDITOR})
+    set_target_properties(${NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
+
+    target_include_directories(${NAME} PUBLIC ${INC_GLFW})
+    target_include_directories(${NAME} PUBLIC ${INC_GLAD})
+    target_include_directories(${NAME} PUBLIC ${INC_JSON})
+    target_include_directories(${NAME} PUBLIC ${INC_GLM})
+    target_include_directories(${NAME} PUBLIC ${INC_STB})
+    target_include_directories(${NAME} PUBLIC ${INC_GLTF})
+    target_include_directories(${NAME} PUBLIC "${ROOT_DIR}/engine")
+    target_link_libraries(${NAME} PUBLIC opengl32 ${ENGINE_LIB} ${LIB_GLFW} ${LIB_GLM})
+
+endmacro()
