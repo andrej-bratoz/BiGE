@@ -11,7 +11,6 @@ namespace bige {
 		void set_background_color(float r, float g, float b, float a = 1.0f);
 		~Window();
 		inline static Window* g_wnd = nullptr;
-		inline static std::unique_ptr<bige::orbit_camera> m_camera;
 		inline static int width;
 		inline static int height;
 	private:

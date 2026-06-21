@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <algorithm>
+#include <memory>
 
 namespace bige {
 	constexpr float ORBIT_YAW = -90.0f; // degrees, starting angle around Y axis
@@ -74,6 +75,8 @@ namespace bige {
 			if (direction == OrbitMovement::LEFT)     target -= right * velocity;
 			if (direction == OrbitMovement::RIGHT)    target += right * velocity;
 		}
+
+		inline static std::unique_ptr<orbit_camera> instance = std::make_unique<orbit_camera>();
 	};
 
 }

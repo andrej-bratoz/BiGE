@@ -24,8 +24,8 @@ namespace bige {
 				base_color_texture->bind(0);
 			}
 
-			auto view = bige::Window::m_camera->get_view_matrix();
-			glm::mat4 projection = glm::perspective(glm::radians(bige::Window::m_camera->fov),
+			auto view = bige::orbit_camera::instance->get_view_matrix();
+			glm::mat4 projection = glm::perspective(glm::radians(orbit_camera::instance->fov),
 				(float)bige::Window::width / (float)bige::Window::height,
 				0.1f, 1000.0f);
 
@@ -41,7 +41,7 @@ namespace bige {
 			// TODO: confirm this matches your camera class -- it needs a position
 			// accessor parallel to get_view_matrix(). Rename if yours differs
 			// (e.g. m_camera->position if it's a public member instead of a getter).
-			push_uniform("uViewPos", bige::Window::m_camera->get_position());
+			push_uniform("uViewPos", orbit_camera::instance->get_position());
 
 			push_uniform("uAmbientStrength", ambient_strength);
 			push_uniform("uSpecularStrength", specular_strength);
@@ -68,8 +68,8 @@ namespace bige {
 				base_color_texture->bind(0);
 			}
 
-			auto view = bige::Window::m_camera->get_view_matrix();
-			glm::mat4 projection = glm::perspective(glm::radians(bige::Window::m_camera->fov),
+			auto view = orbit_camera::instance->get_view_matrix();
+			glm::mat4 projection = glm::perspective(glm::radians(orbit_camera::instance->fov),
 				(float)bige::Window::width / (float)bige::Window::height,
 				0.1f, 1000.0f);
 
@@ -84,7 +84,7 @@ namespace bige {
 			// TODO: confirm this matches your camera class -- it needs a position
 			// accessor parallel to get_view_matrix(). Rename if yours differs
 			// (e.g. m_camera->position if it's a public member instead of a getter).
-			push_uniform("uViewPos", bige::Window::m_camera->get_position());
+			push_uniform("uViewPos", bige::orbit_camera::instance->get_position());
 
 			push_uniform("uAmbientStrength", bige::scene::m_sun->ambient_strength);
 			push_uniform("uSpecularStrength", specular_strength);

@@ -1,5 +1,6 @@
 #include <GLFW/glfw3.h>
 #include <bige-window.h>
+#include <bige-camera.h>
 
 namespace bige {
 	Window::Window(int width, int height, const std::string& name) : 
@@ -41,12 +42,12 @@ namespace bige {
 			Window::g_wnd->m_last_x = xpos;
 			Window::g_wnd->m_last_y = ypos;
 
-			if (Window::g_wnd->m_rotating) Window::g_wnd->m_camera->rotate(xoffset, -yoffset);
-			if (Window::g_wnd->m_panning)  Window::g_wnd->m_camera->pan(xoffset, yoffset);
+			if (Window::g_wnd->m_rotating) bige::orbit_camera::instance->rotate(xoffset, -yoffset);
+			if (Window::g_wnd->m_panning)  bige::orbit_camera::instance->pan(xoffset, yoffset);
 		});
 		glfwSetScrollCallback(m_handle, [](GLFWwindow* window, double xoffset, double yoffset) {
 			if (!Window::g_wnd) return;
-			Window::g_wnd->m_camera->zoom(yoffset);
+			bige::orbit_camera::instance->zoom(yoffset);
 		});
 		return true;
 	}

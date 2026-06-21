@@ -33,8 +33,8 @@ namespace bige { namespace materials {
 			metallic_roughness_texture->bind(2);
 		}
 
-		auto view = bige::Window::m_camera->get_view_matrix();
-		glm::mat4 projection = glm::perspective(glm::radians(bige::Window::m_camera->fov),
+		auto view = bige::orbit_camera::instance->get_view_matrix();
+		glm::mat4 projection = glm::perspective(glm::radians(bige::orbit_camera::instance->fov),
 			(float)bige::Window::width / (float)bige::Window::height,
 			0.1f, 100.0f);
 
@@ -52,7 +52,7 @@ namespace bige { namespace materials {
 		push_uniform("uAmbientColor", bige::scene::m_sun->ambient_color);
 		push_uniform("uAmbientStrength", bige::scene::m_sun->ambient_strength);
 
-		push_uniform("uViewPos", bige::Window::m_camera->get_position());
+		push_uniform("uViewPos", bige::orbit_camera::instance->get_position());
 
 		push_uniform("uAlphaCutoff", alpha_cutoff);
 		push_uniform("uMetallicFactor", metallic_factor);

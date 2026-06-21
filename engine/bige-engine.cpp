@@ -23,9 +23,7 @@ namespace bige {
 		else {
 			m_window = std::unique_ptr<bige::Window>(new bige::Window(800, 600, "BiGE Engine Window"));
 		}
-
 		
-		bige::Window::m_camera = std::make_unique<bige::orbit_camera>();
 		bige::Window::width = 800;
 		bige::Window::height = 600;
 		if (!m_window->create()) {
@@ -80,13 +78,13 @@ namespace bige {
 			}
 			glfwPollEvents();
 
-			if(glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_E) == GLFW_PRESS) bige::Window::m_camera->move(bige::OrbitMovement::FORWARD, m_delta_time * 8);
-			if (glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_R) == GLFW_PRESS) bige::Window::m_camera->move(bige::OrbitMovement::BACKWARD, m_delta_time * 8);
+			if(glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_E) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::FORWARD, m_delta_time * 8);
+			if (glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_R) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::BACKWARD, m_delta_time * 8);
 
-			if (glfwGetKey((GLFWwindow*) m_window->handle(), GLFW_KEY_W) == GLFW_PRESS) bige::Window::m_camera->move(bige::OrbitMovement::FORWARD, m_delta_time);
-			if (glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_S) == GLFW_PRESS) bige::Window::m_camera->move(bige::OrbitMovement::BACKWARD, m_delta_time);
-			if (glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_A) == GLFW_PRESS) bige::Window::m_camera->move(bige::OrbitMovement::LEFT, m_delta_time);
-			if (glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_D) == GLFW_PRESS) bige::Window::m_camera->move(bige::OrbitMovement::RIGHT, m_delta_time);
+			if (glfwGetKey((GLFWwindow*) m_window->handle(), GLFW_KEY_W) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::FORWARD, m_delta_time);
+			if (glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_S) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::BACKWARD, m_delta_time);
+			if (glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_A) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::LEFT, m_delta_time);
+			if (glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_D) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::RIGHT, m_delta_time);
 
 			//glClear(GL_COLOR_BUFFER_BIT);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
