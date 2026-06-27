@@ -12,6 +12,7 @@ namespace bige {
 	}
 
 	void state_cb::message_box::operator()(const std::string& key, const engine_state_impl::state_variant& value) {
+#ifdef BIGE_ENGINE_HAS_JSON
 		if (value.vt() == engine_state_impl::state_variant::type::json) {
 			bige::json j = value.value_json;
 			std::string title = j.contains("title") ? j["title"].get<std::string>() : "BiGe Engine Notification";
@@ -22,6 +23,11 @@ namespace bige {
 		else if (value.vt() == engine_state_impl::state_variant::type::str) {
 			MessageBoxA(NULL, value.value_str.c_str(), "BiGe Engine Notification", MB_OK);
 		}
+#else
+		if (value.vt() == engine_state_impl::state_variant::type::str) {
+			MessageBoxA(NULL, value.value_str.c_str(), "BiGe Engine Notification", MB_OK);
+		}
+#endif
 	}
 
 	void state_cb::window_color_callback::operator()(const std::string& key, const engine_state_impl::state_variant& value) {

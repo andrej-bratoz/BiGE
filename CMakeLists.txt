@@ -6,26 +6,22 @@ include("engine/bige-engine.cmake")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(GAME_NAME "BinkoAdventure")
-set(Tests "BiGETests")
-set(WORLD_EDITOR "BiGEWorldEditor")
+set(TESTS_NAME "BiGETests")
+set(WORLD_EDITOR_NAME "BiGEWorldEditor")
 set(BIGE_ENGINE_ROOT "${CMAKE_SOURCE_DIR}")
 
-set(INC_CATCH2 "${CMAKE_SOURCE_DIR}/external/Catch2/include")
-set(LIB_CATCH2_DIR "${CMAKE_SOURCE_DIR}/external/Catch2/lib")
-
-
-file(GLOB SOURCE_FILES_MAIN "${CMAKE_SOURCE_DIR}/games/badv/*cpp")
-file(GLOB SOURCE_FILES_MAIN2 "${CMAKE_SOURCE_DIR}/games/badv/*h")
+file(GLOB SOURCE_FILES_MAIN "${BIGE_ENGINE_ROOT}/games/badv/*cpp")
+file(GLOB SOURCE_FILES_MAIN2 "${BIGE_ENGINE_ROOT}/games/badv/*h")
 add_executable(${GAME_NAME} ${SOURCE_FILES_MAIN} ${SOURCE_FILES_MAIN2})
-
-#target_compile_definitions(${GAME_NAME} PRIVATE _CRT_SECURE_NO_WARNINGS)
-#target_compile_definitions(${GAME_NAME} PRIVATE WINDOWS_LEAN_AND_MEAN)
-
-#set_target_properties(${GAME_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
-#target_link_libraries(${GAME_NAME} PUBLIC ${ENGINE_LIBRARY_NAME} opengl32 ${LIB_GLFW} ${LIB_GLM})
-
-use_bige_engine("glfw glad json stb gltf glm" ${GAME_NAME})
+use_bige_engine("glfw glad stb gltf glm" ${GAME_NAME})
 set_target_properties(${GAME_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
+
+#set(INC_CATCH2 "${BIGE_ENGINE_ROOT}/external/Catch2/include")
+#set(LIB_CATCH2_DIR "${BIGE_ENGINE_ROOT}/external/Catch2/lib")
+#add_executable()
+
+
+
 
 macro(copy_folder_to_bin TARGET SOURCE_DIR DEST_DIRNAME)
     # Resolve absolute path (works with relative or absolute SOURCE_DIR)
@@ -44,27 +40,11 @@ macro(copy_folder_to_bin TARGET SOURCE_DIR DEST_DIRNAME)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${FILE_PATH}"
                 "$<TARGET_FILE_DIR:${TARGET}>/${DEST_DIRNAME}/${REL_PATH}"
-            COMMENT "Copying ${REL_PATH} to bin/${DEST_DIRNAME}"
+            COMMENT "Copying ${REL_PATH} to ${DEST_DIRNAME}"
         )
     endforeach()
 endmacro()
-
-#add_custom_command(
-#    TARGET ${GAME_NAME} POST_BUILD
-#	COMMAND ${CMAKE_COMMAND} -E copy 
-#	${CMAKE_SOURCE_DIR}/external/glfw/lib/glfw3.dll
-#	$<TARGET_FILE_DIR:${GAME_NAME}>
-#)
-
 copy_folder_to_bin( ${GAME_NAME} "${BIGE_ENGINE_ROOT}/games/badv/config" "config")
 copy_folder_to_bin( ${GAME_NAME} "${BIGE_ENGINE_ROOT}/games/badv/assets" "assets")
 copy_folder_to_bin( ${GAME_NAME} "${BIGE_ENGINE_ROOT}/engine/shaders" "shaders")
-
-#  
-#add_custom_command(
-#    TARGET ${Tests} POST_BUILD
-#	COMMAND ${CMAKE_COMMAND} -E copy 
-#	${CMAKE_SOURCE_DIR}/external/glfw/lib/glfw3.dll
-#	$<TARGET_FILE_DIR:${Tests}>
-#)
 

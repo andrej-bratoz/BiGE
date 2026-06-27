@@ -6,7 +6,7 @@
 #include <memory>
 
 namespace bige {
-	constexpr float ORBIT_YAW = -90.0f; // degrees, starting angle around Y axis
+	constexpr float ORBIT_YAW = 90.0f; // degrees, starting angle around Y axis
 	constexpr float ORBIT_PITCH = 20.0f; // degrees, starting tilt
 	constexpr float ORBIT_DISTANCE = 5.0f;
 	constexpr float ORBIT_MIN_DIST = 1.0f;

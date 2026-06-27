@@ -78,8 +78,8 @@ namespace bige {
 			}
 			glfwPollEvents();
 
-			if(glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_E) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::FORWARD, m_delta_time * 300);
-			if (glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_R) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::BACKWARD, m_delta_time * 300);
+			if(glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_E) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::FORWARD, m_delta_time * 30);
+			if (glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_R) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::BACKWARD, m_delta_time * 30);
 
 			if (glfwGetKey((GLFWwindow*) m_window->handle(), GLFW_KEY_W) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::FORWARD, m_delta_time);
 			if (glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_S) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::BACKWARD, m_delta_time);

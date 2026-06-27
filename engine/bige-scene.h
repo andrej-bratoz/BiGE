@@ -9,7 +9,7 @@ namespace bige {
 		glm::vec3 direction = glm::normalize(glm::vec3(-0.3f, -1.0f, -0.2f));
 		glm::vec3 light_color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glm::vec3 ambient_color = glm::vec3(1.0f, 1.0f, 1.0f);
-		float ambient_strength = 0.15f;
+		float ambient_strength = 0.85f;
 	};
 
 

@@ -113,6 +113,12 @@ function(create_bige_engine OPTIONS_LIST TARGET_OUT)
     list(APPEND target_files ${engine_materials_header_files})
     list(APPEND target_files ${engine_materials_source_files})
 
+    # check if the target already exists
+    if(TARGET "${target_name}") 
+        set(${TARGET_OUT} "${target_name}" PARENT_SCOPE)
+        return()
+    endif()
+
     add_library(${target_name} STATIC)
     set(${TARGET_OUT} "${target_name}" PARENT_SCOPE)
 
@@ -120,30 +126,32 @@ function(create_bige_engine OPTIONS_LIST TARGET_OUT)
 
     if(has_glfw EQUAL 1)
         bige_use_extern_library_glfw(${target_name})
+        target_compile_definitions(${target_name} PRIVATE "-DBIGE_ENGINE_HAS_GLFW")
     endif()
 
     if(has_glad EQUAL 1)
         bige_use_extern_library_glad(${target_name})
+        target_compile_definitions(${target_name} PRIVATE "-DBIGE_ENGINE_HAS_GLAD")
     endif()
 
     if(has_json EQUAL 1)
         bige_use_extern_library_json(${target_name})
+        target_compile_definitions(${target_name} PRIVATE "-DBIGE_ENGINE_HAS_JSON")
     endif()
 
     if(has_stb EQUAL 1)
         bige_use_extern_library_stb(${target_name})
-    endif()
-
-     if(has_stb EQUAL 1)
-        bige_use_extern_library_stb(${target_name})
+        target_compile_definitions(${target_name} PRIVATE "-DBIGE_ENGINE_HAS_STB")
     endif()
 
     if(has_gltf EQUAL 1)
         bige_use_extern_library_gltf(${target_name})
+        target_compile_definitions(${target_name} PRIVATE "-DBIGE_ENGINE_HAS_GLTF")
     endif()
 
      if(has_glm EQUAL 1)
         bige_use_extern_library_glm(${target_name})
+        target_compile_definitions(${target_name} PRIVATE "-DBIGE_ENGINE_HAS_GLM")
     endif()
 
     target_sources(${target_name} PRIVATE ${target_files})
