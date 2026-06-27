@@ -1,7 +1,16 @@
 cmake_minimum_required(VERSION 3.25) 
-project("BiGE") 
-set(BIGE_ROOT_DIR "G:/anb-dev/bige") 
-set(BIGECC_DIR "G:/anb-dev/bige/.bigecc") 
-set(CMAKE_CXX_STANDARD 20) 
-set(CMAKE_CXX_STANDARD_REQUIRED YES) 
-include("${BIGE_ROOT_DIR}/bige.cmake") 
+project("BiGEPrepare") 
+
+execute_process(
+    COMMAND cmd /c "${CMAKE_SOURCE_DIR}/build.bat" "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}"
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    RESULT_VARIABLE BAT_RESULT
+    OUTPUT_VARIABLE BAT_OUTPUT
+    ERROR_VARIABLE BAT_ERROR
+    ECHO_OUTPUT_VARIABLE
+    ECHO_ERROR_VARIABLE
+)
+
+if(NOT BAT_RESULT EQUAL 0)
+    message(FATAL_ERROR "Script failed: ${BAT_ERROR}")
+endif()

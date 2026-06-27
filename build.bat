@@ -1,7 +1,9 @@
 @echo off
 
-set SCRIPT_DIR_FULL=%~dp0
-set SCRIPT_DIR=%SCRIPT_DIR_FULL:~0,-1%
+::set SCRIPT_DIR_FULL=%~1
+::set SCRIPT_DIR=%SCRIPT_DIR_FULL:~0,-1%
+set SCRIPT_DIR=%~1
+set BLD_DIR=%~2
 
 set CATCH2_DIR=%SCRIPT_DIR%\ext\Catch2\
 set GLFW_DIR=%SCRIPT_DIR%\ext\glfw\
@@ -10,16 +12,12 @@ set GLAD_DIR=%SCRIPT_DIR%\ext\glad\
 set NLOHMANN_JSON_DIR=%SCRIPT_DIR%\ext\nlohmann-json\
 set TINYGLTF_DIR=%SCRIPT_DIR%\ext\tinygltf\
 set STB_DIR=%SCRIPT_DIR%\ext\stb\
+set BIGECC=%BLD_DIR%\.bigecc
 
-set BIGECC=%SCRIPT_DIR%\.bigecc
-
-echo %SCRIPT_DIR%
-echo %CATCH2_DIR%
-echo %BIGECC%
-
+if exist "%BLD_DIR%\.bigecc" rd /s /q "%BLD_DIR%\.bigecc"
 if exist "%BIGECC%" rd /s /q "%BIGECC%"
+mkdir "%BLD_DIR%"
 mkdir "%BIGECC%"
-
 
 :: Copy GLAD
 mkdir "%BIGECC%\glad"
@@ -79,19 +77,19 @@ cmake --build "%BIGECC%\nlohmann-json" --config Release --parallel
 cmake --install "%BIGECC%\nlohmann-json" --config Release
 call :DeleteExcept "%BIGECC%\nlohmann-json" "include" "lib"
 
-cd "%SCRIPT_DIR_FULL%"
+cd "%BLD_DIR%"
 call :WriteCMakeLists
+call :CreateProject
 exit /b
 
 :WriteCMakeLists
 :: Write CMakeLists.txt
-
-set SCRIPT_DIR_CM=%SCRIPT_DIR:\=/%
+call :DeleteExcept "%BLD_DIR%" ".bigecc" "CMakeLists.txt"
 set BIGECC_DIR_CM=%BIGECC:\=/%
-
+set BIGECC_ROOT=%SCRIPT_DIR:\=/%
 echo cmake_minimum_required(VERSION 3.25) > CMakeLists.txt
 echo project(^"BiGE^") >> CMakeLists.txt
-echo set(BIGE_ROOT_DIR ^"%SCRIPT_DIR_CM%^") >> CMakeLists.txt
+echo set(BIGE_ROOT_DIR ^"%BIGECC_ROOT%^") >> CMakeLists.txt
 echo set(BIGECC_DIR ^"%BIGECC_DIR_CM%^") >> CMakeLists.txt
 ::
 echo set(CMAKE_CXX_STANDARD 20) >> CMakeLists.txt
@@ -119,4 +117,9 @@ for /d %%D in ("%TARGET%\*") do (
         )
     )
 )
+exit /b
+
+:CreateProject
+cd "%BLD_DIR%"
+cmake . -A x64
 exit /b
