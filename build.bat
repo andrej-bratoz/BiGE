@@ -80,6 +80,7 @@ call :DeleteExcept "%BIGECC%\nlohmann-json" "include" "lib"
 cd "%BLD_DIR%"
 call :WriteCMakeLists
 call :CreateProject
+rm "%BLD_DIR%\_ignore"
 exit /b
 
 :WriteCMakeLists
