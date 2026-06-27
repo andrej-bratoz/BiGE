@@ -1,0 +1,162 @@
+
+
+function(bige_use_extern_library NAME TGT)
+    if(${NAME} STREQUAL "glfw")
+        target_include_directories(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/external/glfw/include")
+        target_link_libraries(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/external/glfw/lib/glfw3dll.lib")
+        add_custom_command(
+            TARGET ${TGT} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy 
+            ${BIGE_ENGINE_ROOT}/external/glfw/lib/glfw3.dll
+            $<TARGET_FILE_DIR:${TGT}>
+        )
+    endif()
+
+    if(${NAME} STREQUAL "json")
+        target_include_directories(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/external/json")
+    endif()
+
+    if(${NAME} STREQUAL "glm")
+        target_include_directories(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/external/glm/include")
+        target_link_libraries(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/external/glm/lib/glm.lib")
+    endif()
+
+    if(${NAME} STREQUAL "glad")
+        target_include_directories(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/external/glad/include")
+    endif()
+
+    if(${NAME} STREQUAL "stb")
+        target_include_directories(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/external/stb")
+    endif()
+
+    if(${NAME} STREQUAL "gltf")
+        target_include_directories(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/external/gltf")
+    endif()
+endfunction()
+
+function(bige_use_extern_library_glfw TGT) 
+    bige_use_extern_library("glfw" ${TGT})
+endfunction()
+
+function(bige_use_extern_library_json TGT) 
+    bige_use_extern_library("json" ${TGT})
+endfunction()
+
+function(bige_use_extern_library_glm TGT) 
+    bige_use_extern_library("glm" ${TGT})
+endfunction()
+
+function(bige_use_extern_library_stb TGT) 
+    bige_use_extern_library("stb" ${TGT})
+endfunction()
+
+
+function(bige_use_extern_library_gltf TGT) 
+    bige_use_extern_library("gltf" ${TGT})
+endfunction()
+
+function(bige_use_extern_library_glad TGT) 
+    bige_use_extern_library("glad" ${TGT})
+endfunction()
+
+
+function(create_bige_engine OPTIONS_LIST TARGET_OUT)
+    set(target_name "bige_engine")
+    set(target_files "")
+
+    if(${OPTIONS_LIST} MATCHES "editor")
+        set(has_editor 1)
+        string(APPEND target_name "_we_")
+    endif()
+
+    if(${OPTIONS_LIST} MATCHES "glfw")
+        set(has_glfw 1)
+        string(APPEND target_name "_glfw_")
+    endif()
+
+    if(${OPTIONS_LIST} MATCHES "glm")
+        set(has_glm 1)
+        string(APPEND target_name "_glm_")
+    endif()
+
+    if(${OPTIONS_LIST} MATCHES "glad")
+        set(has_glad 1)
+        string(APPEND target_name "_glad_")
+        list(APPEND target_files "${BIGE_ENGINE_ROOT}/external/glad/src/glad.c")
+    endif()
+
+    if(${OPTIONS_LIST} MATCHES "json")
+        set(has_json 1)
+        string(APPEND target_name "_json_")
+    endif()
+
+    if(${OPTIONS_LIST} MATCHES "stb")
+        set(has_stb 1)
+        string(APPEND target_name "_stb_")
+    endif()
+
+    if(${OPTIONS_LIST} MATCHES "gltf")
+        set(has_gltf 1)
+        string(APPEND target_name "_gltf_")
+        list(APPEND target_files "${BIGE_ENGINE_ROOT}/external/gltf/tiny_gltf.cpp")
+    endif()
+
+    file(GLOB engine_header_files "${BIGE_ENGINE_ROOT}/engine/*h")
+    file(GLOB engine_source_files "${BIGE_ENGINE_ROOT}/engine/*cpp")
+
+    file(GLOB engine_materials_header_files "${BIGE_ENGINE_ROOT}/engine/materials/*h")
+    file(GLOB engine_materials_source_files "${BIGE_ENGINE_ROOT}/engine/materials/*cpp")
+    
+    list(APPEND target_files ${engine_header_files})
+    list(APPEND target_files ${engine_source_files})
+
+    list(APPEND target_files ${engine_materials_header_files})
+    list(APPEND target_files ${engine_materials_source_files})
+
+    add_library(${target_name} STATIC)
+    set(${TARGET_OUT} "${target_name}" PARENT_SCOPE)
+
+    target_include_directories(${target_name} PUBLIC "${BIGE_ENGINE_ROOT}/engine")
+
+    if(has_glfw EQUAL 1)
+        bige_use_extern_library_glfw(${target_name})
+    endif()
+
+    if(has_glad EQUAL 1)
+        bige_use_extern_library_glad(${target_name})
+    endif()
+
+    if(has_json EQUAL 1)
+        bige_use_extern_library_json(${target_name})
+    endif()
+
+    if(has_stb EQUAL 1)
+        bige_use_extern_library_stb(${target_name})
+    endif()
+
+     if(has_stb EQUAL 1)
+        bige_use_extern_library_stb(${target_name})
+    endif()
+
+    if(has_gltf EQUAL 1)
+        bige_use_extern_library_gltf(${target_name})
+    endif()
+
+     if(has_glm EQUAL 1)
+        bige_use_extern_library_glm(${target_name})
+    endif()
+
+    target_sources(${target_name} PRIVATE ${target_files})
+
+endfunction()
+
+function(use_bige_engine OPTIONS_LIST TGT)
+    create_bige_engine(${OPTIONS_LIST} BINGE_ENGINE_LIB)
+    target_include_directories(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/engine")
+    target_link_libraries(${TGT} PUBLIC opengl32 ${BINGE_ENGINE_LIB})
+    bige_use_extern_library_glfw(${TGT})
+    bige_use_extern_library_glad(${TGT})
+    bige_use_extern_library_glm(${TGT})
+    bige_use_extern_library_json(${TGT})
+    bige_use_extern_library_gltf(${TGT})
+endfunction()

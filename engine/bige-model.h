@@ -12,10 +12,12 @@ namespace bige {
 			std::unique_ptr<bige::mesh> mesh;
 			std::unique_ptr<bige::material> material;
 			bige::transform transform;
-
-
-
 		};
+
+		glm::vec3 position;
+		glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
+		glm::vec3 rotation;
+
 		void add_primitive(std::unique_ptr<primitive> p);
 		std::vector<std::unique_ptr<primitive>> primitives();
 		const std::vector<std::unique_ptr<primitive>>& primitives_ref();

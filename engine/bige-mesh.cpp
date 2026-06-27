@@ -1,7 +1,6 @@
 #include <bige-mesh.h>
 #include <bige-utils.h>
 #include <algorithm>
-#include <Windows.h>
 
 namespace bige {
 	void mesh::add_vertex(const vertex& v) { m_vertices.emplace_back(v); }

@@ -36,7 +36,7 @@ namespace bige { namespace materials {
 		auto view = bige::orbit_camera::instance->get_view_matrix();
 		glm::mat4 projection = glm::perspective(glm::radians(bige::orbit_camera::instance->fov),
 			(float)bige::Window::width / (float)bige::Window::height,
-			0.1f, 100.0f);
+			bige::orbit_camera::instance->near_plane, bige::orbit_camera::instance->far_plane);
 
 		// Assumes push_uniform(name, const glm::mat3&) now exists on material,
 		// matching what your vertex_pnu_lit.vs already expects (uniform mat3).

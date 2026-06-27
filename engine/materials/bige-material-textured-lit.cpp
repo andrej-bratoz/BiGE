@@ -25,9 +25,9 @@ namespace bige {
 			}
 
 			auto view = bige::orbit_camera::instance->get_view_matrix();
-			glm::mat4 projection = glm::perspective(glm::radians(orbit_camera::instance->fov),
+			glm::mat4 projection = glm::perspective(glm::radians(bige::orbit_camera::instance->fov),
 				(float)bige::Window::width / (float)bige::Window::height,
-				0.1f, 1000.0f);
+				bige::orbit_camera::instance->near_plane, bige::orbit_camera::instance->far_plane);
 
 			glm::mat3 normal_mat3 = glm::inverseTranspose(glm::mat3(t.world_matrix));
 

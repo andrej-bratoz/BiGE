@@ -1,3 +1,5 @@
+#include <Windows.h>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -8,7 +10,6 @@
 #include <bige-logging.h>
 #include <bige-object.h>
 #include <bige-shadercache.h>
-#include <Windows.h>
 #include <memory>
 //
 #include "ba-scenes.h"

@@ -47,7 +47,7 @@ namespace bige {
 		});
 		glfwSetScrollCallback(m_handle, [](GLFWwindow* window, double xoffset, double yoffset) {
 			if (!Window::g_wnd) return;
-			bige::orbit_camera::instance->zoom(yoffset);
+			bige::orbit_camera::instance->zoom((float)yoffset);
 		});
 		return true;
 	}

@@ -1,10 +1,10 @@
 
 
+#include <Windows.h>
 #include <bige-engine.h>
 #include <bige-logging.h>
 #include <bige-state_cb.h>
 #include <execution>
-#include <Windows.h>
 
 namespace bige {
 
@@ -51,7 +51,7 @@ namespace bige {
 
 	void engine::run() {
 		bige::engine_state st;
-		m_last_time = glfwGetTime();
+		m_last_time = (float)glfwGetTime();
 		m_delta_time = 0;
 		_log("engine");
 		_lt("entering main loop");
@@ -78,8 +78,8 @@ namespace bige {
 			}
 			glfwPollEvents();
 
-			if(glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_E) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::FORWARD, m_delta_time * 8);
-			if (glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_R) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::BACKWARD, m_delta_time * 8);
+			if(glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_E) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::FORWARD, m_delta_time * 300);
+			if (glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_R) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::BACKWARD, m_delta_time * 300);
 
 			if (glfwGetKey((GLFWwindow*) m_window->handle(), GLFW_KEY_W) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::FORWARD, m_delta_time);
 			if (glfwGetKey((GLFWwindow*)m_window->handle(), GLFW_KEY_S) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::BACKWARD, m_delta_time);

@@ -14,6 +14,7 @@
 #include <Windows.h>
 #include <memory>
 
+
 void init_materials() {
 	bige::shader_cache::instance()->add(bige::VERTEX_OFFSET_3D, bige::settings::read_text_file(BIGE_SETTINGS_VERTEX_SHADER_FOLDER, "offset_3d.vs"), bige::shader::shader_type::vertex);
 	bige::shader_cache::instance()->add(bige::VERTEX_TEXTURE_3D, bige::settings::read_text_file(BIGE_SETTINGS_VERTEX_SHADER_FOLDER, "texture_3d.vs"), bige::shader::shader_type::vertex);
@@ -28,10 +29,10 @@ void init_materials() {
 	bige::shader_cache::instance()->add(bige::FRAGMENT_TEXTURE_PBR, bige::settings::read_text_file(BIGE_SETTINGS_FRAGMENT_SHADER_FOLDER, "texture_pbr.fs"), bige::shader::shader_type::fragment);
 }
 
+
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
 
 	bige::logger::s_logger->file_path = "world_editor.log";
-
 	_log("main");
 	_l("=================== starting BiGE engine World Editor... ===================");
 
@@ -48,11 +49,11 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 
 	BIGE_DEFER(
 		_log("main");
-	_l("engine loop has ended");
-	engine->shutdown();
-	_l("engine shutdown called");
-	bige::logger::s_logger->close();
-		);
+		_l("engine loop has ended");
+		engine->shutdown();
+		_l("engine shutdown called");
+		bige::logger::s_logger->close();
+	);
 
 	st.state_set(bige::state::WINDOW_BACKGROUND_COLOR, BIGE_STATE_VEC4(30, 40, 40, 255), true);
 

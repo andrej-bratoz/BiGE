@@ -11,12 +11,17 @@
 namespace ba {
 	scene_object::scene_object() {
 		bige::gltf_loader loader;
-		auto obj = loader.load(bige::settings::assets_folder() + "\\temple_of_apollo_-_naxos_greece_cyark_dataset.glb", [](const tinygltf::Material* mat, 
+		auto obj = loader.load(bige::settings::assets_folder() + "\\ccity_building_set_1.glb", [](const tinygltf::Material* mat, 
 			std::shared_ptr<bige::texture> tex, std::shared_ptr<bige::texture> normal_tex, std::shared_ptr<bige::texture> rough_met) {
 			std::unique_ptr<bige::material> material = std::make_unique<bige::materials::solid_color_material>(glm::vec4(1.0f));
 			if (!mat || (!tex && !normal_tex)) {
 				return material;
 			}
+
+			material = std::make_unique<bige::materials::lit_material>();
+
+			/*
+
 			//
 			if (normal_tex) {
 				material = std::make_unique<bige::materials::lit_material_normals>();
@@ -58,7 +63,7 @@ namespace ba {
 					lit_mat_normals->alpha_cutoff = 0.0f;
 				}
 			}
-
+			*/
 			material->base_color_texture = tex;
 			material->normal_texture = normal_tex;
 			material->metallic_roughness_texture = rough_met;
