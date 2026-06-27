@@ -2,35 +2,36 @@
 
 function(bige_use_extern_library NAME TGT)
     if(${NAME} STREQUAL "glfw")
-        target_include_directories(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/external/glfw/include")
-        target_link_libraries(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/external/glfw/lib/glfw3dll.lib")
-        add_custom_command(
-            TARGET ${TGT} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy 
-            ${BIGE_ENGINE_ROOT}/external/glfw/lib/glfw3.dll
-            $<TARGET_FILE_DIR:${TGT}>
-        )
+        target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/glfw/include")
+        target_link_libraries(${TGT} PUBLIC "${BIGECC_DIR}/glfw/lib/glfw3.lib")
+        #add_custom_command(
+        #    TARGET ${TGT} POST_BUILD
+        #    COMMAND ${CMAKE_COMMAND} -E copy 
+        #    ${BIGE_ROOT_DIR}/${BIGECC_DIR}/glfw/lib/glfw3.dll
+        #    $<TARGET_FILE_DIR:${TGT}>
+        #)
     endif()
 
     if(${NAME} STREQUAL "json")
-        target_include_directories(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/external/json")
+        target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/json")
     endif()
 
     if(${NAME} STREQUAL "glm")
-        target_include_directories(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/external/glm/include")
-        target_link_libraries(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/external/glm/lib/glm.lib")
+        target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/glm/include")
+        target_link_libraries(${TGT} PUBLIC "${BIGECC_DIR}/glm/lib/glm.lib")
     endif()
 
     if(${NAME} STREQUAL "glad")
-        target_include_directories(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/external/glad/include")
+        target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/glad/include")
     endif()
 
     if(${NAME} STREQUAL "stb")
-        target_include_directories(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/external/stb")
+        target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/stb")
     endif()
 
     if(${NAME} STREQUAL "gltf")
-        target_include_directories(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/external/gltf")
+        target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/tinygltf/include")
+        target_link_libraries(${TGT} PUBLIC "${BIGECC_DIR}/tinygltf/lib/tinygltfd.lib")
     endif()
 endfunction()
 
@@ -82,7 +83,7 @@ function(create_bige_engine OPTIONS_LIST TARGET_OUT)
     if(${OPTIONS_LIST} MATCHES "glad")
         set(has_glad 1)
         string(APPEND target_name "_glad_")
-        list(APPEND target_files "${BIGE_ENGINE_ROOT}/external/glad/src/glad.c")
+        list(APPEND target_files "${BIGECC_DIR}/glad/src/glad.c")
     endif()
 
     if(${OPTIONS_LIST} MATCHES "json")
@@ -98,14 +99,14 @@ function(create_bige_engine OPTIONS_LIST TARGET_OUT)
     if(${OPTIONS_LIST} MATCHES "gltf")
         set(has_gltf 1)
         string(APPEND target_name "_gltf_")
-        list(APPEND target_files "${BIGE_ENGINE_ROOT}/external/gltf/tiny_gltf.cpp")
+        #list(APPEND target_files "${BIGECC_DIR}/gltf/tiny_gltf.cpp")
     endif()
 
-    file(GLOB engine_header_files "${BIGE_ENGINE_ROOT}/engine/*h")
-    file(GLOB engine_source_files "${BIGE_ENGINE_ROOT}/engine/*cpp")
+    file(GLOB engine_header_files "${BIGE_ROOT_DIR}/engine/*h")
+    file(GLOB engine_source_files "${BIGE_ROOT_DIR}/engine/*cpp")
 
-    file(GLOB engine_materials_header_files "${BIGE_ENGINE_ROOT}/engine/materials/*h")
-    file(GLOB engine_materials_source_files "${BIGE_ENGINE_ROOT}/engine/materials/*cpp")
+    file(GLOB engine_materials_header_files "${BIGE_ROOT_DIR}/engine/materials/*h")
+    file(GLOB engine_materials_source_files "${BIGE_ROOT_DIR}/engine/materials/*cpp")
     
     list(APPEND target_files ${engine_header_files})
     list(APPEND target_files ${engine_source_files})
@@ -122,7 +123,13 @@ function(create_bige_engine OPTIONS_LIST TARGET_OUT)
     add_library(${target_name} STATIC)
     set(${TARGET_OUT} "${target_name}" PARENT_SCOPE)
 
-    target_include_directories(${target_name} PUBLIC "${BIGE_ENGINE_ROOT}/engine")
+    target_include_directories(${target_name} PUBLIC "${BIGE_ROOT_DIR}/engine")
+
+    
+    if(has_editor EQUAL 1)
+        bige_use_extern_library_glfw(${target_name})
+        target_compile_definitions(${target_name} PRIVATE "-DBIGE_ENGINE_HAS_EDITOR")
+    endif()
 
     if(has_glfw EQUAL 1)
         bige_use_extern_library_glfw(${target_name})
@@ -160,7 +167,7 @@ endfunction()
 
 function(use_bige_engine OPTIONS_LIST TGT)
     create_bige_engine(${OPTIONS_LIST} BINGE_ENGINE_LIB)
-    target_include_directories(${TGT} PUBLIC "${BIGE_ENGINE_ROOT}/engine")
+    target_include_directories(${TGT} PUBLIC "${BIGE_ROOT_DIR}/engine")
     target_link_libraries(${TGT} PUBLIC opengl32 ${BINGE_ENGINE_LIB})
     bige_use_extern_library_glfw(${TGT})
     bige_use_extern_library_glad(${TGT})
