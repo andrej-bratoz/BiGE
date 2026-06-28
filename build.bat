@@ -41,6 +41,10 @@ echo cmake_minimum_required(VERSION 3.25) > CMakeLists.txt
 echo project(^"BiGE^") >> CMakeLists.txt
 echo set(BIGE_ROOT_DIR ^"%BIGECC_ROOT%^") >> CMakeLists.txt
 echo set(BIGECC_DIR ^"%BIGECC_DIR_CM%^") >> CMakeLists.txt
+echo set(BIGE_ENGINE_DIR ^"%BIGECC_ROOT%/bige-engine%^") >> CMakeLists.txt
+echo set(BIGE_EDITOR_DIR ^"%BIGECC_ROOT%/bige-editor^") >> CMakeLists.txt
+echo set(BIGE_TESTS_DIR ^"%BIGECC_ROOT%/bige-tests^") >> CMakeLists.txt
+echo set(BIGE_GAME_DIR ^"%BIGECC_ROOT%/bige-games^") >> CMakeLists.txt
 ::
 echo set(CMAKE_CXX_STANDARD 20) >> CMakeLists.txt
 echo set(CMAKE_CXX_STANDARD_REQUIRED YES) >> CMakeLists.txt

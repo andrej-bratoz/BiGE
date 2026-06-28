@@ -1,12 +1,13 @@
-include("${BIGE_ROOT_DIR}/engine-editor/engine-editor.cmake")
-include("${BIGE_ROOT_DIR}/engine/bige-engine.cmake")
+include("${BIGE_EDITOR_DIR}/engine-editor.cmake")
+include("${BIGE_ENGINE_DIR}/bige-engine.cmake")
 
 set(GAME_NAME "BinkoAdventure")
+set(GAME_FOLDER "badv")
 set(TESTS_NAME "BiGETests")
 set(WORLD_EDITOR_NAME "BiGEWorldEditor")
 
-file(GLOB SOURCE_FILES_MAIN "${BIGE_ROOT_DIR}/games/badv/*cpp")
-file(GLOB SOURCE_FILES_MAIN2 "${BIGE_ROOT_DIR}/games/badv/*h")
+file(GLOB SOURCE_FILES_MAIN "${BIGE_GAME_DIR}/badv/*cpp")
+file(GLOB SOURCE_FILES_MAIN2 "${BIGE_GAME_DIR}/badv/*h")
 add_executable(${GAME_NAME} ${SOURCE_FILES_MAIN} ${SOURCE_FILES_MAIN2})
 use_bige_engine("glfw glad stb gltf glm" ${GAME_NAME})
 set_target_properties(${GAME_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
@@ -14,8 +15,6 @@ set_target_properties(${GAME_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
 #set(INC_CATCH2 "${BIGE_ENGINE_ROOT}/external/Catch2/include")
 #set(LIB_CATCH2_DIR "${BIGE_ENGINE_ROOT}/external/Catch2/lib")
 #add_executable()
-
-
 
 
 macro(copy_folder_to_bin TARGET SOURCE_DIR DEST_DIRNAME)
@@ -39,7 +38,7 @@ macro(copy_folder_to_bin TARGET SOURCE_DIR DEST_DIRNAME)
         )
     endforeach()
 endmacro()
-copy_folder_to_bin( ${GAME_NAME} "${BIGE_ROOT_DIR}/games/badv/config" "config")
-copy_folder_to_bin( ${GAME_NAME} "${BIGE_ROOT_DIR}/games/badv/assets" "assets")
-copy_folder_to_bin( ${GAME_NAME} "${BIGE_ROOT_DIR}/engine/shaders" "shaders")
+copy_folder_to_bin( ${GAME_NAME} "${BIGE_GAME_DIR}/${GAME_FOLDER}/config" "config")
+copy_folder_to_bin( ${GAME_NAME} "${BIGE_GAME_DIR}/${GAME_FOLDER}/assets" "assets")
+copy_folder_to_bin( ${GAME_NAME} "${BIGE_ENGINE_DIR}/shaders" "shaders")
 

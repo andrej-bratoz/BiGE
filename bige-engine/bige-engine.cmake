@@ -6,17 +6,15 @@ function (bige_use_library_rel_deb TGT LIB)
     )
 endfunction()
 
+function (bige_use_library TGT LIB)
+    target_link_libraries(${TGT} PUBLIC "${LIB}")
+endfunction()
+
 
 function(bige_use_extern_library NAME TGT)
     if(${NAME} STREQUAL "glfw")
         target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/glfw/include")
-        target_link_libraries(${TGT} PUBLIC "${BIGECC_DIR}/glfw/lib/glfw3.lib")
-        #add_custom_command(
-        #    TARGET ${TGT} POST_BUILD
-        #    COMMAND ${CMAKE_COMMAND} -E copy 
-        #    ${BIGE_ROOT_DIR}/${BIGECC_DIR}/glfw/lib/glfw3.dll
-        #    $<TARGET_FILE_DIR:${TGT}>
-        #)
+        bige_use_library(${TGT} "${BIGECC_DIR}/glfw/lib/glfw3.lib")
     endif()
 
     if(${NAME} STREQUAL "json")
@@ -110,11 +108,11 @@ function(create_bige_engine OPTIONS_LIST TARGET_OUT)
         #list(APPEND target_files "${BIGECC_DIR}/gltf/tiny_gltf.cpp")
     endif()
 
-    file(GLOB engine_header_files "${BIGE_ROOT_DIR}/engine/*h")
-    file(GLOB engine_source_files "${BIGE_ROOT_DIR}/engine/*cpp")
+    file(GLOB engine_header_files "${BIGE_ENGINE_DIR}/*h")
+    file(GLOB engine_source_files "${BIGE_ENGINE_DIR}/*cpp")
 
-    file(GLOB engine_materials_header_files "${BIGE_ROOT_DIR}/engine/materials/*h")
-    file(GLOB engine_materials_source_files "${BIGE_ROOT_DIR}/engine/materials/*cpp")
+    file(GLOB engine_materials_header_files "${BIGE_ENGINE_DIR}/materials/*h")
+    file(GLOB engine_materials_source_files "${BIGE_ENGINE_DIR}/materials/*cpp")
     
     list(APPEND target_files ${engine_header_files})
     list(APPEND target_files ${engine_source_files})
@@ -130,8 +128,7 @@ function(create_bige_engine OPTIONS_LIST TARGET_OUT)
 
     add_library(${target_name} STATIC)
     set(${TARGET_OUT} "${target_name}" PARENT_SCOPE)
-
-    target_include_directories(${target_name} PUBLIC "${BIGE_ROOT_DIR}/engine")
+    target_include_directories(${target_name} PUBLIC "${BIGE_ENGINE_DIR}")
 
     
     if(has_editor EQUAL 1)
@@ -175,7 +172,7 @@ endfunction()
 
 function(use_bige_engine OPTIONS_LIST TGT)
     create_bige_engine(${OPTIONS_LIST} BINGE_ENGINE_LIB)
-    target_include_directories(${TGT} PUBLIC "${BIGE_ROOT_DIR}/engine")
+    target_include_directories(${TGT} PUBLIC "${BIGE_ENGINE_DIR}")
     target_link_libraries(${TGT} PUBLIC opengl32 ${BINGE_ENGINE_LIB})
     bige_use_extern_library_glfw(${TGT})
     bige_use_extern_library_glad(${TGT})
