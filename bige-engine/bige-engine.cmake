@@ -1,20 +1,32 @@
 
 
 function (bige_use_library_rel_deb TGT LIB)
-    target_link_libraries(${TGT} PUBLIC
+    target_link_libraries(${TGT} PRIVATE
         $<IF:$<CONFIG:Debug>,${LIB}d.lib,${LIB}.lib>
     )
 endfunction()
 
 function (bige_use_library TGT LIB)
-    target_link_libraries(${TGT} PUBLIC "${LIB}")
+    target_link_libraries(${TGT} PRIVATE "${LIB}")
 endfunction()
 
+
+function(bige_create_gui_wrapper)
+    if(TARGET "bige_raylib_nuclear_wrapper") 
+        return()
+    endif()
+    add_library("bige_raylib_nuclear_wrapper" STATIC "${BIGE_ENGINE_DIR}/bige-proxy-gui.c")
+    target_include_directories("bige_raylib_nuclear_wrapper" PUBLIC "${BIGECC_DIR}/raylib-nuklear/include")
+    bige_use_library_rel_deb("bige_raylib_nuclear_wrapper" "${BIGECC_DIR}/raylib-nuklear/lib/raylib")
+endfunction()
 
 function(bige_use_extern_library NAME TGT)
     if(${NAME} STREQUAL "editor")
         target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/raylib-nuklear/include")
-        bige_use_library_rel_deb(${TGT} "${BIGECC_DIR}/glfw/lib/raylib")
+        bige_create_gui_wrapper()
+        target_link_libraries(${TGT} PRIVATE "bige_raylib_nuclear_wrapper")
+        bige_use_library_rel_deb(${TGT} "${BIGECC_DIR}/raylib-nuklear/lib/raylib")
+        target_link_libraries(${TGT} PRIVATE winmm)
     endif()
 
     if(${NAME} STREQUAL "glfw")
@@ -28,7 +40,7 @@ function(bige_use_extern_library NAME TGT)
 
     if(${NAME} STREQUAL "glm")
         target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/glm/include")
-        target_link_libraries(${TGT} PUBLIC "${BIGECC_DIR}/glm/lib/glm.lib")
+        bige_use_library(${TGT} "${BIGECC_DIR}/glm/lib/glm.lib")
     endif()
 
     if(${NAME} STREQUAL "glad")
@@ -41,7 +53,7 @@ function(bige_use_extern_library NAME TGT)
 
     if(${NAME} STREQUAL "gltf")
         target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/tinygltf/include")
-        #target_link_libraries(${TGT} PUBLIC "${BIGECC_DIR}/tinygltf/lib/tinygltf.lib")
+        bige_use_library(${TGT} "${BIGECC_DIR}/tinygltf/lib/tinygltf.lib")
         bige_use_library_rel_deb(${TGT} "${BIGECC_DIR}/tinygltf/lib/tinygltf")
     endif()
 endfunction()
@@ -98,7 +110,11 @@ function(create_bige_engine OPTIONS_LIST TARGET_OUT)
     if(${OPTIONS_LIST} MATCHES "glad")
         set(has_glad 1)
         string(APPEND target_name "_glad_")
-        list(APPEND target_files "${BIGECC_DIR}/glad/src/glad.c")
+        if(has_editor EQUAL 1)
+            # do nothing
+        else()
+            list(APPEND target_files "${BIGECC_DIR}/glad/src/glad.c")
+        endif()
     endif()
 
     if(${OPTIONS_LIST} MATCHES "json")
@@ -181,6 +197,7 @@ endfunction()
 
 function(use_bige_engine OPTIONS_LIST TGT)
     create_bige_engine(${OPTIONS_LIST} BINGE_ENGINE_LIB)
+    target_compile_options("${BINGE_ENGINE_LIB}" PRIVATE /permissive)
     target_include_directories(${TGT} PUBLIC "${BIGE_ENGINE_DIR}")
     target_link_libraries(${TGT} PUBLIC opengl32 ${BINGE_ENGINE_LIB})
     bige_use_extern_library_glfw(${TGT})

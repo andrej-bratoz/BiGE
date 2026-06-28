@@ -1,10 +1,18 @@
 
 
-#include <Windows.h>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#ifdef BIGE_ENGINE_HAS_EDITOR
+#include <raylib-nuklear.h>
+#endif
+
+//#include <Windows.h>
 #include <bige-engine.h>
 #include <bige-logging.h>
 #include <bige-state_cb.h>
 #include <execution>
+
 
 namespace bige {
 
@@ -30,9 +38,13 @@ namespace bige {
 			return false;
 		}
 		bige::Window::g_wnd = m_window.get();
+#ifdef BIGE_ENGINE_HAS_EDITOR
+		InitWindow(640, 480, "World Editor Controls");
+#else
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 			return false;
 		}
+#endif
 		st.state_set(bige::state::SYSTEM_UPTIME_START, (int)glfwGetTime(), false);
 		return true;
 	}
@@ -64,8 +76,31 @@ namespace bige {
 		glFrontFace(GL_CCW); // adjust if your mesh winding is clockwise -- see note below
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+#ifdef BIGE_ENGINE_HAS_EDITOR
+		int fontSize = 10;
+		struct nk_context* ctx = InitNuklear(fontSize);
+#endif
+
 		while (!glfwWindowShouldClose(BIGE_WINDOW_HANDLE(m_window->handle()))) {
 			
+#ifdef BIGE_ENGINE_HAS_EDITOR
+			UpdateNuklear(ctx);
+			if (nk_begin(ctx, "Nuklear", nk_rect(100, 100, 220, 220),
+				NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_CLOSABLE)) {
+				nk_layout_row_static(ctx, 50, 150, 1);
+				if (nk_button_label(ctx, "Button")) {
+					// Button was clicked!
+					int i = 0;
+				}
+			}
+			nk_end(ctx);
+
+			BeginDrawing();
+			ClearBackground(RAYWHITE);
+			// Render the Nuklear GUI
+			DrawNuklear(ctx);
+			EndDrawing();
+#endif
 
 			float currentFrame = static_cast<float>(glfwGetTime());
 			m_delta_time = currentFrame - last_frame;
@@ -108,6 +143,9 @@ namespace bige {
 				obj->dispatch(bige::objects::object::dispatch_call_id::teardown, this);
 			}
 		}
+#ifdef BIGE_ENGINE_HAS_EDITOR
+		UnloadNuklear(ctx);
+#endif
 	}
 	
 	void engine::shutdown() {
