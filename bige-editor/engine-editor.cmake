@@ -1,7 +1,6 @@
 macro(build_engine_editor NAME)
     file(GLOB HEADER_FILES_BIGE_EDITOR "${BIGE_EDITOR_DIR}/*h")
-    file(GLOB SOURCE_FILES_BIGE_EDITOR "${BIGE_EDITOR_DIR}*cpp")
-    #file(GLOB RC_FILES_BIGE_EDITOR "${ROOT_DIR}/engine-editor/*rc")
+    file(GLOB SOURCE_FILES_BIGE_EDITOR "${BIGE_EDITOR_DIR}/*cpp")
     add_executable(${NAME} ${HEADER_FILES_BIGE_EDITOR} ${SOURCE_FILES_BIGE_EDITOR} ${RC_FILES_BIGE_EDITOR})
     set_target_properties(${NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
     use_bige_engine("glfw glad stb gltf glm json editor" ${NAME})
