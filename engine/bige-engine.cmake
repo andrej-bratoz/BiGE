@@ -1,5 +1,12 @@
 
 
+function (bige_use_library_rel_deb TGT LIB)
+    target_link_libraries(${TGT} PUBLIC
+        $<IF:$<CONFIG:Debug>,${LIB}d.lib,${LIB}.lib>
+    )
+endfunction()
+
+
 function(bige_use_extern_library NAME TGT)
     if(${NAME} STREQUAL "glfw")
         target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/glfw/include")
@@ -31,7 +38,8 @@ function(bige_use_extern_library NAME TGT)
 
     if(${NAME} STREQUAL "gltf")
         target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/tinygltf/include")
-        target_link_libraries(${TGT} PUBLIC "${BIGECC_DIR}/tinygltf/lib/tinygltfd.lib")
+        #target_link_libraries(${TGT} PUBLIC "${BIGECC_DIR}/tinygltf/lib/tinygltf.lib")
+        bige_use_library_rel_deb(${TGT} "${BIGECC_DIR}/tinygltf/lib/tinygltf")
     endif()
 endfunction()
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25) 
-project("_ignore") 
+project("_bootstrap") 
 
 execute_process(
     COMMAND cmd /c "${CMAKE_SOURCE_DIR}/build.bat" "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}"
