@@ -10,6 +10,7 @@ set GLFW_DIR=%SCRIPT_DIR%\ext\glfw\
 set GLM_DIR=%SCRIPT_DIR%\ext\glm\
 set GLAD_DIR=%SCRIPT_DIR%\ext\glad\
 set NLOHMANN_JSON_DIR=%SCRIPT_DIR%\ext\nlohmann-json\
+set RAYLIB_NUKLEAR_DIR=%SCRIPT_DIR%\ext\raylib-nuklear\
 set TINYGLTF_DIR=%SCRIPT_DIR%\ext\tinygltf\
 set STB_DIR=%SCRIPT_DIR%\ext\stb\
 set BIGECC=%BLD_DIR%\.bigecc
@@ -26,6 +27,7 @@ call :Build_Catch2
 call :Build_GLFW
 call :Build_GLM
 call :Build_JSON
+call :Build_RaylibNuclear
 
 cd "%BLD_DIR%"
 call :WriteCMakeLists
@@ -239,5 +241,27 @@ exit /b
     cmake --build "%BIGECC%\nlohmann-json" --config Release --parallel
     cmake --install "%BIGECC%\nlohmann-json" --config Release
     call :DeleteExcept "%BIGECC%\nlohmann-json" "include" "lib"
+    del _in_progress_
+    exit /b
+
+
+:Build_RaylibNuclear
+    echo "- Building RaylibNuklear"
+    if exist "%BIGECC%\raylib-nuklear\_in_progress_" (
+        rd /s /q "%BIGECC%\raylib-nuklear"
+    )
+
+    if exist "%BIGECC%\raylib-nuklear\include" (
+        echo "----- RaylibNuklear already built"
+        exit /b
+    )
+
+    mkdir "%BIGECC%\raylib-nuklear"
+    cd "%BIGECC%\raylib-nuklear"
+    echo "" >> _in_progress_
+    cmake %RAYLIB_NUKLEAR_DIR% -DCMAKE_INSTALL_PREFIX="%BIGECC%\raylib-nuklear"
+    cmake --build "%BIGECC%\raylib-nuklear" --config Release --parallel
+    cmake --install "%BIGECC%\raylib-nuklear" --config Release
+    call :DeleteExcept "%BIGECC%\raylib-nuklear" "include" "lib"
     del _in_progress_
     exit /b
