@@ -12,13 +12,18 @@ endfunction()
 
 
 function(bige_use_extern_library NAME TGT)
+    if(${NAME} STREQUAL "editor")
+        target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/raylib-nuklear/include")
+        bige_use_library_rel_deb(${TGT} "${BIGECC_DIR}/glfw/lib/raylib")
+    endif()
+
     if(${NAME} STREQUAL "glfw")
         target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/glfw/include")
         bige_use_library(${TGT} "${BIGECC_DIR}/glfw/lib/glfw3.lib")
     endif()
 
     if(${NAME} STREQUAL "json")
-        target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/json")
+        target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/nlohmann-json/include")
     endif()
 
     if(${NAME} STREQUAL "glm")
@@ -39,6 +44,10 @@ function(bige_use_extern_library NAME TGT)
         #target_link_libraries(${TGT} PUBLIC "${BIGECC_DIR}/tinygltf/lib/tinygltf.lib")
         bige_use_library_rel_deb(${TGT} "${BIGECC_DIR}/tinygltf/lib/tinygltf")
     endif()
+endfunction()
+
+function(bige_use_extern_library_editor TGT) 
+    bige_use_extern_library("editor" ${TGT})
 endfunction()
 
 function(bige_use_extern_library_glfw TGT) 
@@ -132,7 +141,7 @@ function(create_bige_engine OPTIONS_LIST TARGET_OUT)
 
     
     if(has_editor EQUAL 1)
-        bige_use_extern_library_glfw(${target_name})
+        bige_use_extern_library_editor(${target_name})
         target_compile_definitions(${target_name} PRIVATE "-DBIGE_ENGINE_HAS_EDITOR")
     endif()
 

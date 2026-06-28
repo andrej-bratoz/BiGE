@@ -12,9 +12,7 @@ add_executable(${GAME_NAME} ${SOURCE_FILES_MAIN} ${SOURCE_FILES_MAIN2})
 use_bige_engine("glfw glad stb gltf glm" ${GAME_NAME})
 set_target_properties(${GAME_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
 
-#set(INC_CATCH2 "${BIGE_ENGINE_ROOT}/external/Catch2/include")
-#set(LIB_CATCH2_DIR "${BIGE_ENGINE_ROOT}/external/Catch2/lib")
-#add_executable()
+build_engine_editor(${WORLD_EDITOR_NAME})
 
 
 macro(copy_folder_to_bin TARGET SOURCE_DIR DEST_DIRNAME)

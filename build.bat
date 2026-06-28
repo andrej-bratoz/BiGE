@@ -259,9 +259,14 @@ exit /b
     mkdir "%BIGECC%\raylib-nuklear"
     cd "%BIGECC%\raylib-nuklear"
     echo "" >> _in_progress_
-    cmake %RAYLIB_NUKLEAR_DIR% -DCMAKE_INSTALL_PREFIX="%BIGECC%\raylib-nuklear"
+    cmake %RAYLIB_NUKLEAR_DIR% -DCMAKE_INSTALL_PREFIX="%BIGECC%\raylib-nuklear" -DCMAKE_DEBUG_POSTFIX=d
+    cmake --build "%BIGECC%\raylib-nuklear" --config DEBUG --parallel
+    cmake --install "%BIGECC%\raylib-nuklear" --config DEBUG
+
     cmake --build "%BIGECC%\raylib-nuklear" --config Release --parallel
     cmake --install "%BIGECC%\raylib-nuklear" --config Release
+    
+    
     call :DeleteExcept "%BIGECC%\raylib-nuklear" "include" "lib"
     del _in_progress_
     exit /b
