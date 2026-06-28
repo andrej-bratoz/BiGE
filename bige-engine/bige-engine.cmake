@@ -12,21 +12,29 @@ endfunction()
 
 
 function(bige_create_gui_wrapper)
-    if(TARGET "bige_raylib_nuclear_wrapper") 
+    if(TARGET "bige_imgui_wrapper") 
         return()
     endif()
-    add_library("bige_raylib_nuclear_wrapper" STATIC "${BIGE_ENGINE_DIR}/bige-proxy-gui.c")
-    target_include_directories("bige_raylib_nuclear_wrapper" PUBLIC "${BIGECC_DIR}/raylib-nuklear/include")
-    bige_use_library_rel_deb("bige_raylib_nuclear_wrapper" "${BIGECC_DIR}/raylib-nuklear/lib/raylib")
+    add_library("bige_imgui_wrapper" STATIC 
+        "${BIGECC_DIR}/imgui/imgui.cpp"
+        "${BIGECC_DIR}/imgui/imgui_draw.cpp"
+        "${BIGECC_DIR}/imgui/imgui_tables.cpp"
+        "${BIGECC_DIR}/imgui/imgui_widgets.cpp"
+        "${BIGECC_DIR}/imgui/backends/imgui_impl_glfw.cpp"
+        "${BIGECC_DIR}/imgui/backends/imgui_impl_opengl3.cpp"
+    )
+    target_include_directories(bige_imgui_wrapper PRIVATE "${BIGECC_DIR}/imgui")
+    target_include_directories(bige_imgui_wrapper PRIVATE "${BIGECC_DIR}/imgui/backends")
+    bige_use_extern_library_glfw("bige_imgui_wrapper")
+
 endfunction()
 
 function(bige_use_extern_library NAME TGT)
     if(${NAME} STREQUAL "editor")
-        target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/raylib-nuklear/include")
         bige_create_gui_wrapper()
-        target_link_libraries(${TGT} PRIVATE "bige_raylib_nuclear_wrapper")
-        bige_use_library_rel_deb(${TGT} "${BIGECC_DIR}/raylib-nuklear/lib/raylib")
-        target_link_libraries(${TGT} PRIVATE winmm)
+        target_link_libraries(${TGT} PRIVATE "bige_imgui_wrapper")
+        target_include_directories(${TGT} PRIVATE "${BIGECC_DIR}/imgui")
+        target_include_directories(${TGT} PRIVATE "${BIGECC_DIR}/imgui/backends")
     endif()
 
     if(${NAME} STREQUAL "glfw")
@@ -111,7 +119,7 @@ function(create_bige_engine OPTIONS_LIST TARGET_OUT)
         set(has_glad 1)
         string(APPEND target_name "_glad_")
         if(has_editor EQUAL 1)
-            # do nothing
+            list(APPEND target_files "${BIGECC_DIR}/glad/src/glad.c")
         else()
             list(APPEND target_files "${BIGECC_DIR}/glad/src/glad.c")
         endif()
@@ -159,6 +167,7 @@ function(create_bige_engine OPTIONS_LIST TARGET_OUT)
     if(has_editor EQUAL 1)
         bige_use_extern_library_editor(${target_name})
         target_compile_definitions(${target_name} PRIVATE "-DBIGE_ENGINE_HAS_EDITOR")
+        target_include_directories(${target_name} PRIVATE ${BIGE_EDITOR_DIR})
     endif()
 
     if(has_glfw EQUAL 1)

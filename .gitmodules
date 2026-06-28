@@ -19,6 +19,6 @@
 [submodule "ext/Catch2"]
 	path = ext/Catch2
 	url = https://github.com/catchorg/Catch2
-[submodule "ext/raylib-nuklear"]
-	path = ext/raylib-nuklear
-	url = https://github.com/RobLoach/raylib-nuklear
+[submodule "ext/imgui"]
+	path = ext/imgui
+	url = https://github.com/ocornut/imgui

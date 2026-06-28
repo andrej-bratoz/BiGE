@@ -35,4 +35,26 @@ namespace bige {
 			m_engine->window().set_background_color(BIGE_RGBA_COLOR_NORMALIZED(value.value_vec4.x, value.value_vec4.y, value.value_vec4.z, value.value_vec4.w));
 		}
 	}
+
+	void state_cb::world_editor_callback::operator()(const std::string& key, const engine_state_impl::state_variant& value) {
+		_log("world_editor_callback");
+		if (key == "direction_light.direction") {
+			if(BIGE_CHECK_STATE_VEC3(value)) {
+				bige::scene::m_sun->direction = glm::normalize(glm::vec3(value.value_vec3.x, value.value_vec3.y, value.value_vec3.z));
+			}
+		} else if(key == "direction_light.light_color") {
+			if(BIGE_CHECK_STATE_VEC3(value)) {
+				bige::scene::m_sun->light_color = glm::vec3(value.value_vec3.x, value.value_vec3.y, value.value_vec3.z);
+			}
+		} else if(key == "direction_light.ambient_color") {
+			if(BIGE_CHECK_STATE_VEC3(value)) {
+				bige::scene::m_sun->ambient_color = glm::vec3(value.value_vec3.x, value.value_vec3.y, value.value_vec3.z);
+			}
+		} else if(key == "direction_light.ambient_strength") {
+			if(BIGE_CHECK_STATE_FLOAT(value)) {
+				bige::scene::m_sun->ambient_strength = value.value_float;
+				_l("world_editor_callback: ambient_strength = {}", std::to_string(value.value_float));
+			}
+		}
+	}
 }

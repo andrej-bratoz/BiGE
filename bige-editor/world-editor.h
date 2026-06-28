@@ -79,11 +79,4 @@ namespace biwe {
 		// add any editor specific scene data or functionality here
 		inline static std::unique_ptr<world_scene> instance = std::make_unique<world_scene>();
 	};
-
-	struct world_editor_window {
-		// read from world-editor.rc
-		void show() {
-			
-		}
-	};
 }

@@ -56,6 +56,7 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int n
 	);
 
 	st.state_set(bige::state::WINDOW_BACKGROUND_COLOR, BIGE_STATE_VEC4(30, 40, 40, 255), true);
+	st.subscribe("world.editor.values", BIGE_REGISTER_STATE_CB(bige::state_cb::world_editor_callback));
 
 	_l("init materials");
 	init_materials();

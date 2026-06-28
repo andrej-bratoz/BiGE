@@ -6,6 +6,7 @@ namespace bige {
 		BIGE_ENGINE_DECLARE_STATE_CB(trace_logger);
 		BIGE_ENGINE_DECLARE_STATE_CB(message_box);
 		BIGE_ENGINE_DECLARE_STATE_PARAM_CB(window_color_callback, bige::engine*, engine);
+		BIGE_ENGINE_DECLARE_STATE_CB(world_editor_callback);
 	}
 	namespace state {
 		constexpr const char* MESSAGE_CB_SHOW = "bige.messagebox.show";

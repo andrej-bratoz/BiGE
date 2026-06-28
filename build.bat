@@ -10,7 +10,7 @@ set GLFW_DIR=%SCRIPT_DIR%\ext\glfw\
 set GLM_DIR=%SCRIPT_DIR%\ext\glm\
 set GLAD_DIR=%SCRIPT_DIR%\ext\glad\
 set NLOHMANN_JSON_DIR=%SCRIPT_DIR%\ext\nlohmann-json\
-set RAYLIB_NUKLEAR_DIR=%SCRIPT_DIR%\ext\raylib-nuklear\
+set IMGUI_DIR=%SCRIPT_DIR%\ext\imgui\
 set TINYGLTF_DIR=%SCRIPT_DIR%\ext\tinygltf\
 set STB_DIR=%SCRIPT_DIR%\ext\stb\
 set BIGECC=%BLD_DIR%\.bigecc
@@ -27,7 +27,7 @@ call :Build_Catch2
 call :Build_GLFW
 call :Build_GLM
 call :Build_JSON
-call :Build_RaylibNuclear
+call :Build_ImGui
 
 cd "%BLD_DIR%"
 call :WriteCMakeLists
@@ -245,28 +245,20 @@ exit /b
     exit /b
 
 
-:Build_RaylibNuclear
-    echo "- Building RaylibNuklear"
-    if exist "%BIGECC%\raylib-nuklear\_in_progress_" (
-        rd /s /q "%BIGECC%\raylib-nuklear"
+:Build_ImGui
+    echo "- Building ImGui"
+    if exist "%BIGECC%\imgui\_in_progress_" (
+        rd /s /q "%BIGECC%\imgui"
     )
 
-    if exist "%BIGECC%\raylib-nuklear\include" (
-        echo "----- RaylibNuklear already built"
+    if exist "%BIGECC%\imgui" (
+        echo "----- ImGui already built"
         exit /b
     )
 
-    mkdir "%BIGECC%\raylib-nuklear"
-    cd "%BIGECC%\raylib-nuklear"
+    mkdir "%BIGECC%\imgui"
+    cd "%BIGECC%\imgui"
     echo "" >> _in_progress_
-    cmake %RAYLIB_NUKLEAR_DIR% -DCMAKE_INSTALL_PREFIX="%BIGECC%\raylib-nuklear" -DCMAKE_DEBUG_POSTFIX=d
-    cmake --build "%BIGECC%\raylib-nuklear" --config DEBUG --parallel
-    cmake --install "%BIGECC%\raylib-nuklear" --config DEBUG
-
-    cmake --build "%BIGECC%\raylib-nuklear" --config Release --parallel
-    cmake --install "%BIGECC%\raylib-nuklear" --config Release
-    
-    
-    call :DeleteExcept "%BIGECC%\raylib-nuklear" "include" "lib"
+    xcopy /e /i /y "%IMGUI_DIR%" "%BIGECC%\imgui"
     del _in_progress_
     exit /b
