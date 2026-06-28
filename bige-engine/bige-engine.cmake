@@ -61,7 +61,6 @@ function(bige_use_extern_library NAME TGT)
 
     if(${NAME} STREQUAL "gltf")
         target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/tinygltf/include")
-        bige_use_library(${TGT} "${BIGECC_DIR}/tinygltf/lib/tinygltf.lib")
         bige_use_library_rel_deb(${TGT} "${BIGECC_DIR}/tinygltf/lib/tinygltf")
     endif()
 endfunction()

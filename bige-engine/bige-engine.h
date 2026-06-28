@@ -34,6 +34,10 @@ namespace bige {
 #ifdef BIGE_ENGINE_HAS_JSON
 			typedef nlohmann::json json;
 #endif
+
+			struct vec2 {
+				float x, y;
+			};
 			
 			struct vec3 {
 				float x, y, z;
@@ -48,6 +52,7 @@ namespace bige {
 				i32,
 				f32,
 				str,
+				vec2,
 				vec3,
 				vec4,
 #ifdef BIGE_ENGINE_HAS_JSON
@@ -58,23 +63,27 @@ namespace bige {
 #ifdef BIGE_ENGINE_HAS_JSON
 			json value_json;
 #endif
+			vec2 value_vec2{ 0.0f, 0.0f };
 			vec3 value_vec3{ 0.0f, 0.0f, 0.0f };
 			vec4 value_vec4 { 0.0f, 0.0f, 0.0f, 0.0f };
-			union {
-				int32_t value_int = 0;
-				float value_float;
-			};
+			int32_t value_int = 0;
+			float value_float = 0;
 			state_variant() : value_type(type::none) {}
 			state_variant(int val) : value_int(val), value_type(type::i32) {}
-			state_variant(float val) : value_float(val), value_type(type::f32) {}
+			state_variant(float val) : value_float(val), value_type(type::f32) {
+				int i = 0;
+			
+			}
 			state_variant(const std::string& val) : value_str(val), value_type(type::str) {}
 			state_variant(const char* val) : value_str(val), value_type(type::str) {}
 #ifdef BIGE_ENGINE_HAS_JSON
 			state_variant(const json& val) : value_json(val), value_type(type::json) {}
 #endif
-			state_variant(const vec3& val) : value_vec4({ val.x, val.y, val.z }), value_type(type::vec3) {}
+			state_variant(const vec2& val) : value_vec2({ val.x, val.y }), value_type(type::vec2) {}
+			state_variant(const vec3& val) : value_vec3({ val.x, val.y, val.z }), value_type(type::vec3) {}
 			state_variant(const vec4& val) : value_vec4({ val.x, val.y, val.z, val.w }), value_type(type::vec4) {}
 			type vt() const { return value_type; }
+#			define BIGE_CHECK_STATE_VEC2(x) (x.vt() == bige::engine_state_impl::state_variant::type::vec2)
 # 			define BIGE_CHECK_STATE_VEC3(x) (x.vt() == bige::engine_state_impl::state_variant::type::vec3)
 # 			define BIGE_CHECK_STATE_VEC4(x) (x.vt() == bige::engine_state_impl::state_variant::type::vec4)
 # 			define BIGE_CHECK_STATE_INT32(x) (x.vt() == bige::engine_state_impl::state_variant::type::i32)
@@ -84,7 +93,7 @@ namespace bige {
 # 			define BIGE_CHECK_STATE_JSON(x) (x.vt() == bige::engine_state_impl::state_variant::type::json)
 #endif
 # 			define BIGE_CHECK_STATE_NONE(x) (x.vt() == bige::engine_state_impl::state_variant::type::none)
-
+#			define BIGE_STATE_VEC2(r,g) bige::engine_state_impl::state_variant(bige::engine_state_impl::state_variant::vec2{ r, g })
 #			define BIGE_STATE_VEC3(r,g,b) bige::engine_state_impl::state_variant(bige::engine_state_impl::state_variant::vec3{ r, g, b })
 #			define BIGE_STATE_VEC4(r,g,b,alpha) bige::engine_state_impl::state_variant(bige::engine_state_impl::state_variant::vec4{ r, g, b, alpha }) 
 #ifdef BIGE_ENGINE_HAS_JSON
@@ -95,8 +104,9 @@ namespace bige {
 #			define BIGE_STATE_STRING(val) bige::engine_state_impl::state_variant((std::string)val)
 #			define BIGE_STATE_NONE(val) bige::engine_state_impl::state_variant()
 
-		private:
 			type value_type;
+
+		private:
 		};
 		
 		struct state_cb {

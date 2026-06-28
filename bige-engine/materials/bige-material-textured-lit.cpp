@@ -36,14 +36,14 @@ namespace bige {
 			push_uniform("uProjection", projection);
 			push_uniform("uNormalMatrix", normal_mat3);
 
-			push_uniform("uLightDirection", light_direction);
-			push_uniform("uLightColor", light_color);
+			push_uniform("uLightDirection", bige::scene::m_sun->direction);
+			push_uniform("uLightColor", bige::scene::m_sun->light_color);
 			// TODO: confirm this matches your camera class -- it needs a position
 			// accessor parallel to get_view_matrix(). Rename if yours differs
 			// (e.g. m_camera->position if it's a public member instead of a getter).
 			push_uniform("uViewPos", orbit_camera::instance->get_position());
 
-			push_uniform("uAmbientStrength", ambient_strength);
+			push_uniform("uAmbientStrength", bige::scene::m_sun->ambient_strength);
 			push_uniform("uSpecularStrength", specular_strength);
 			push_uniform("uShininess", shininess);
 			push_uniform("uAlphaCutoff", alpha_cutoff);
@@ -71,7 +71,7 @@ namespace bige {
 			auto view = orbit_camera::instance->get_view_matrix();
 			glm::mat4 projection = glm::perspective(glm::radians(orbit_camera::instance->fov),
 				(float)bige::Window::width / (float)bige::Window::height,
-				0.1f, 1000.0f);
+				orbit_camera::instance->near_plane, orbit_camera::instance->far_plane);
 
 			glm::mat3 normal_mat3 = glm::inverseTranspose(glm::mat3(t.world_matrix));
 

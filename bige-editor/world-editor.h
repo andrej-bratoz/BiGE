@@ -1,5 +1,8 @@
 #pragma once
 #include <bige-state_cb.h>
+#include <bige-gltf-parser.h>
+#include <bige-material.h>
+#include <materials/bige-materials.h>
 #include <bige-scene.h>
 #include <glm/vec3.hpp>
 #include <memory>
@@ -75,8 +78,14 @@ namespace biwe {
 		inline static std::unique_ptr<world_state> instance = std::make_unique<world_state>();
 	};
 
+	struct scene_object : bige::objects::object_3d {
+		scene_object();
+	};
+
 	struct world_scene : bige::scene {
-		// add any editor specific scene data or functionality here
-		inline static std::unique_ptr<world_scene> instance = std::make_unique<world_scene>();
+		
+		world_scene();
+
+		//inline static std::unique_ptr<world_scene> instance = std::make_unique<world_scene>();
 	};
 }
