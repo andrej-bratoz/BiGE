@@ -1,4 +1,5 @@
 #pragma once
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <bige-utils.h>
 #include <bige-camera.h>
@@ -13,6 +14,7 @@ namespace bige {
 		inline static std::unique_ptr<Window> engine_window = nullptr;
 		int m_width;
 		int m_height;
+		bool m_block_events = false;
 	private:
 		GLFWwindow* m_handle;
 		std::string m_name;

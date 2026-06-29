@@ -1,4 +1,3 @@
-#include <GLFW/glfw3.h>
 #include <bige-window.h>
 #include <bige-camera.h>
 #ifdef BIGE_ENGINE_HAS_EDITOR
@@ -19,7 +18,6 @@ namespace bige {
 			return false;
 		}
 		glfwMakeContextCurrent(m_handle);
-		glViewport(0, 0, m_width, m_height);
 		//
 		glfwSetFramebufferSizeCallback(m_handle, [](GLFWwindow* window, int width, int height) {
 			glViewport(0, 0, width, height);

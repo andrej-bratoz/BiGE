@@ -20,8 +20,8 @@ namespace bige {
 	bool engine::initialize() {
 		glfwInit();
 		bige::engine_state st;
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		register_state_callbacks();
 
@@ -40,6 +40,7 @@ namespace bige {
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 			return false;
 		}
+		glViewport(0, 0, bige::Window::engine_window->m_width, bige::Window::engine_window->m_height);
 #ifdef BIGE_ENGINE_HAS_EDITOR
 		we::editor_gui gui;
 		gui.prepare(BIGE_WINDOW_HANDLE(bige::Window::engine_window->handle()));
@@ -80,7 +81,7 @@ namespace bige {
 			
 #ifdef BIGE_ENGINE_HAS_EDITOR
 			we::editor_gui gui;
-			gui.set_gui();
+			gui.set_gui(m_scene.get());
 #endif
 
 			float currentFrame = static_cast<float>(glfwGetTime());

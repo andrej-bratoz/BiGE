@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <string>
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
@@ -55,6 +56,7 @@ namespace bige {
 			m->caulcuate_bounds();
 			return m;
 		}
+		std::string name;
 
 	private: 
 		std::vector<vertex> m_vertices;

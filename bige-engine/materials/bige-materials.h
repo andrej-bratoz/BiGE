@@ -22,7 +22,6 @@ namespace bige { namespace materials {
 		// more than one light or to tweak it without recompiling.
 		glm::vec3 light_direction = glm::normalize(glm::vec3(-0.3f, -1.0f, -0.2f));
 		glm::vec3 light_color = glm::vec3(1.0f, 1.0f, 1.0f);
-		float ambient_strength = 0.15f;
 		float specular_strength = 0.5f;
 		float shininess = 32.0f;
 		float alpha_cutoff = 0.5f; // matches glTF's default alphaCutoff for MASK materials
@@ -37,7 +36,6 @@ namespace bige { namespace materials {
 		// more than one light or to tweak it without recompiling.
 		glm::vec3 light_direction = glm::normalize(glm::vec3(-0.3f, -1.0f, -0.2f));
 		glm::vec3 light_color = glm::vec3(1.0f, 1.0f, 1.0f);
-		float ambient_strength = 0.48f;
 		float specular_strength = 0.5f;
 		float shininess = 32.0f;
 		float alpha_cutoff = 0.5f; // matches glTF's default alphaCutoff for MASK materials
@@ -50,8 +48,11 @@ namespace bige { namespace materials {
 		std::shared_ptr<texture> normal_texture = nullptr;
 		std::shared_ptr<texture> metallic_roughness_texture = nullptr;
 
+		float alpha_cutoff = 0.5f; // per-material -- ideally set from the glTF's own alphaCutoff (MASK materials)
 		float metallic_factor = 1.0f;
 		float roughness_factor = 1.0f;
-		float alpha_cutoff = 0.5f; // per-material -- ideally set from the glTF's own alphaCutoff (MASK materials)
 	};
+
+
+	bige::material* choose_material_tglf(void* mat, std::shared_ptr<bige::texture> tex, std::shared_ptr<bige::texture> normal_tex, std::shared_ptr<bige::texture> rough_met);
 }}

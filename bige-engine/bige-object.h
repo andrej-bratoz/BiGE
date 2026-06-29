@@ -51,13 +51,12 @@ namespace bige { namespace objects {
 		//
 		void attach_model(std::unique_ptr<model> model) { m_model = std::move(model); }
 
-
-	protected:
 		std::unique_ptr<bige::model> m_model;
 		bool m_prepared = false;
 		bool m_dead = false;
 		std::vector<GLuint> m_vaos;
 		std::vector<GLuint> m_vbos;
 		std::vector<GLuint> m_ebos;
+		std::string name;
 	};
 }}

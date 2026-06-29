@@ -1,10 +1,12 @@
 #include <bige-camera.h>
 #include <bige-state_cb.h>
+#include <bige-scene.h>
 #include "we-input-events.h"
 #include "we-state.h"
 
 namespace we {
 	void world_scene_mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+		if (bige::Window::engine_window->m_block_events) return;
 		if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) { return; }
 		if (button == GLFW_MOUSE_BUTTON_LEFT) {
 			we::editor_state::instance->m_rotating = (action == GLFW_PRESS);
@@ -21,6 +23,7 @@ namespace we {
 	}
 
 	void world_scene_cursor_pos_callback(GLFWwindow* window, double xpos, double ypos) {
+		if (bige::Window::engine_window->m_block_events) return;
 		if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) { return; }
 		float xoffset = static_cast<float>(xpos - we::editor_state::instance->m_last_x);
 		float yoffset = static_cast<float>(ypos - we::editor_state::instance->m_last_y);
@@ -41,6 +44,8 @@ namespace we {
 	}
 
 	void world_scene_handle_movement(GLFWwindow* window, float delta_time, float speed) {
+		if (bige::Window::engine_window->m_block_events) return;
+
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::FORWARD, delta_time * speed);
 		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::BACKWARD, delta_time * speed);
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) bige::orbit_camera::instance->move(bige::OrbitMovement::LEFT, delta_time * speed);
@@ -53,7 +58,7 @@ namespace we {
 		ImGui_ImplOpenGL3_Init("#version 330");
 	}
 
-	void editor_gui::set_gui() {
+	void editor_gui::set_gui(bige::scene* s) {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -62,7 +67,6 @@ namespace we {
 
 		ImGui::Begin("Controls");
 		ImGui::SliderFloat("Ambient light strength", &bige::scene::m_sun->ambient_strength, 0.0f, 1.0f);
-
 		if (ImGui::SliderFloat("Azimuth", &bige::scene::m_sun->azimuth, -180.0f, 180.0f)) {
 			float azRad = glm::radians(bige::scene::m_sun->azimuth);
 			float elRad = glm::radians(bige::scene::m_sun->elevation);
@@ -87,8 +91,54 @@ namespace we {
 
 		ImGui::Text("Ambient strength = %f", bige::scene::m_sun->ambient_strength);
 		ImGui::Text("Ambient light direction [ %f, %f, %f ]", bige::scene::m_sun->direction.x, bige::scene::m_sun->direction.y, bige::scene::m_sun->direction.z);
-		ImGui::End();
 
+
+		static int viewPortx = 0;
+		static int viewPorty = 0;
+		if (ImGui::SliderInt("Viewport X", &viewPortx, 0, bige::Window::engine_window->m_width)) {
+			glViewport(viewPortx, viewPorty, bige::Window::engine_window->m_width, bige::Window::engine_window->m_height);
+		}
+
+		if (ImGui::SliderInt("Viewport Y", &viewPorty, 0, bige::Window::engine_window->m_height)) {
+			glViewport(viewPortx, viewPorty, bige::Window::engine_window->m_width, bige::Window::engine_window->m_height);
+		}
+		ImGui::Checkbox("Block events", &bige::Window::engine_window->m_block_events);
+		
+		int j = 0, i = 0;
+		if (ImGui::TreeNode("Scene")) {
+			for (const auto& obj : s->objects_ref()) {
+				if (ImGui::TreeNode("Object: 1")) {
+					for (const auto& prim : obj->m_model->primitives_ref()) {
+
+						std::string mesh_info = "Mesh: " + prim->mesh->name;
+						if (ImGui::TreeNode(mesh_info.c_str())) {
+							static const char* selected = "Material 2";
+
+							std::string mesh_info = "material: " + std::to_string(j++);
+
+							if (ImGui::BeginCombo(mesh_info.c_str(), selected)) {
+								const char* options[] = { "Material 1", "Material 2", "Material 3" };
+								for (const char* opt : options) {
+									bool is_selected = (selected == opt);
+									if (ImGui::Selectable(opt, is_selected))
+										selected = opt;
+									if (is_selected) {
+										ImGui::SetItemDefaultFocus();
+										int k = 0;
+									}
+								}
+								ImGui::EndCombo();
+							}
+							ImGui::Text("Some useful info");
+							ImGui::TreePop();
+						}
+					}
+					ImGui::TreePop();
+				}
+			}
+			ImGui::TreePop();
+		}
+		ImGui::End();
 	}
 
 }

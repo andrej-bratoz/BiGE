@@ -1,6 +1,7 @@
 #include <bige-gltf-parser.h>
 #include <bige-logging.h>
-
+#include <bige-material.h>
+#include <materials/bige-materials.h>
 //
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
@@ -13,29 +14,162 @@
 
 namespace bige {
 
-    // ---------- accessor reading helpers ----------
+    // implement gltf material chooser
+    bige::material* materials::choose_material_tglf(void* platform_material,
+        std::shared_ptr<bige::texture> tex,
+        std::shared_ptr<bige::texture> normal_tex,
+        std::shared_ptr<bige::texture> rough_met) {
+        
+        tinygltf::Material* mat = static_cast<tinygltf::Material*>(platform_material);
+        if (!mat || (!tex && !normal_tex)) {
+            return new  bige::materials::solid_color_material(glm::vec4(1.0f));
+		}
 
-// returns a raw pointer + stride into the GLTF buffer for a given accessor.
-// caller knows the type and walks `count` elements at `stride` bytes apart.
-    static const unsigned char* accessor_data(
-        const tinygltf::Model& gltf,
-        int accessor_index,
-        size_t& out_count,
-        size_t& out_stride_bytes,
-        int& out_component_type,
-        int& out_type)
-    {
+        const bool isUnlit = mat->extensions.count("KHR_materials_unlit") > 0;
+        const bool hasNormal = mat->normalTexture.index != -1;
+        const auto& pbr = mat->pbrMetallicRoughness;
+        const bool hasAlbedoTex = pbr.baseColorTexture.index != -1;
+        const bool hasMetRoughTex = pbr.metallicRoughnessTexture.index != -1;
+        const bool hasPBRFactors = pbr.metallicFactor != 1.0 || pbr.roughnessFactor != 1.0;
+
+        if (isUnlit) {
+            if (hasAlbedoTex) {
+                auto val = new bige::materials::textured_material();
+                val->base_color_texture = tex;
+                val->normal_texture = normal_tex;
+                val->metallic_roughness_texture = rough_met;
+                return val;
+            } else {
+                const auto& c = mat->pbrMetallicRoughness.baseColorFactor;
+                return new bige::materials::solid_color_material(glm::vec4(c[0], c[1], c[2], c[3]));
+            }
+        }
+
+        if (!hasAlbedoTex && !hasMetRoughTex && !hasPBRFactors && !hasNormal) {
+            auto val = new bige::materials::lit_material();
+            val->base_color_texture = tex;
+            val->normal_texture = normal_tex;
+            val->metallic_roughness_texture = rough_met;
+
+            float roughness = static_cast<float>(mat->pbrMetallicRoughness.roughnessFactor);
+            float metallic = static_cast<float>(mat->pbrMetallicRoughness.metallicFactor);
+
+            // roughness 0 = mirror = very shiny, roughness 1 = dull
+            float shininess = (1.0f - roughness) * 128.0f;  // range [0, 128]
+            float specular_strength = glm::mix(0.04f, 1.0f, metallic); // non-metals ~4%, metals ~100%
+            float ambient_strength = 0.1f; // glTF has no ambient concept, just pick a constant
+
+			val->shininess = shininess;
+			val->specular_strength = specular_strength;
+
+            if (mat->alphaMode == "MASK")
+                val->alpha_cutoff = static_cast<float>(mat->alphaCutoff);
+
+            return val;
+        }
+
+        const bool hasPBR = hasMetRoughTex || hasPBRFactors;
+
+        if (hasAlbedoTex && hasPBR && hasNormal) {
+            auto val = new bige::materials::pbr_material();
+            val->base_color_texture = tex;
+            val->normal_texture = normal_tex;
+            val->metallic_roughness_texture = rough_met;
+
+            float metallic_factor = static_cast<float>(mat->pbrMetallicRoughness.metallicFactor);
+            float roughness_factor = static_cast<float>(mat->pbrMetallicRoughness.roughnessFactor);
+
+            float alpha_cutoff = 0.5f;
+            if (mat->alphaMode == "MASK")
+                alpha_cutoff = static_cast<float>(mat->alphaCutoff);
+
+			val->metallic_factor = metallic_factor;
+			val->roughness_factor = roughness_factor;
+			val->alpha_cutoff = alpha_cutoff;
+
+            return val;
+        }
+        
+        if (hasAlbedoTex && hasPBR) {
+            auto val = new bige::materials::pbr_material();
+            val->base_color_texture = tex;
+            val->normal_texture = normal_tex;
+            val->metallic_roughness_texture = rough_met;
+
+            float metallic_factor = static_cast<float>(mat->pbrMetallicRoughness.metallicFactor);
+            float roughness_factor = static_cast<float>(mat->pbrMetallicRoughness.roughnessFactor);
+
+            float alpha_cutoff = 0.5f;
+            if (mat->alphaMode == "MASK")
+                alpha_cutoff = static_cast<float>(mat->alphaCutoff);
+
+            val->metallic_factor = metallic_factor;
+            val->roughness_factor = roughness_factor;
+            val->alpha_cutoff = alpha_cutoff;
+
+            return val;
+        }
+
+        if (hasAlbedoTex && hasNormal) {
+            auto val = new bige::materials::lit_material_normals();
+            val->base_color_texture = tex;
+            val->normal_texture = normal_tex;
+            val->metallic_roughness_texture = rough_met;
+
+            float roughness = static_cast<float>(mat->pbrMetallicRoughness.roughnessFactor);
+            float metallic = static_cast<float>(mat->pbrMetallicRoughness.metallicFactor);
+
+            // roughness 0 = mirror = very shiny, roughness 1 = dull
+            float shininess = (1.0f - roughness) * 128.0f;  // range [0, 128]
+            float specular_strength = glm::mix(0.04f, 1.0f, metallic); // non-metals ~4%, metals ~100%
+            float ambient_strength = 0.1f; // glTF has no ambient concept, just pick a constant
+
+            val->shininess = shininess;
+            val->specular_strength = specular_strength;
+
+            if (mat->alphaMode == "MASK")
+                val->alpha_cutoff = static_cast<float>(mat->alphaCutoff);
+
+            return val;
+        }
+        if (hasAlbedoTex) {
+            auto val = new bige::materials::lit_material();
+            val->base_color_texture = tex;
+            val->normal_texture = normal_tex;
+            val->metallic_roughness_texture = rough_met;
+
+            float roughness = static_cast<float>(mat->pbrMetallicRoughness.roughnessFactor);
+            float metallic = static_cast<float>(mat->pbrMetallicRoughness.metallicFactor);
+
+            // roughness 0 = mirror = very shiny, roughness 1 = dull
+            float shininess = (1.0f - roughness) * 128.0f;  // range [0, 128]
+            float specular_strength = glm::mix(0.04f, 1.0f, metallic); // non-metals ~4%, metals ~100%
+            float ambient_strength = 0.1f; // glTF has no ambient concept, just pick a constant
+
+            val->shininess = shininess;
+            val->specular_strength = specular_strength;
+
+            if (mat->alphaMode == "MASK")
+                val->alpha_cutoff = static_cast<float>(mat->alphaCutoff);
+
+            return val;
+        }
+        return new bige::materials::solid_color_material(glm::vec4(1.0f, 1.0f, 1.0f, 0.0f));
+    }
+
+
+    static const unsigned char* accessor_data(const tinygltf::Model& gltf, int accessor_index, size_t& out_count, 
+                                              size_t& out_stride_bytes, int& out_component_type, int& out_type) {
         const auto& accessor = gltf.accessors[accessor_index];
         const auto& buffer_view = gltf.bufferViews[accessor.bufferView];
         const auto& buffer = gltf.buffers[buffer_view.buffer];
 
         out_count = accessor.count;
         out_component_type = accessor.componentType;  // GL_FLOAT, GL_UNSIGNED_SHORT, ...
-        out_type = accessor.type;           // TINYGLTF_TYPE_VEC3, ...
+        out_type = accessor.type;                     // TINYGLTF_TYPE_VEC3, ...
 
         // stride: explicit in bufferView, or implicit (tight packing of element size)
-        size_t element_size = tinygltf::GetComponentSizeInBytes(accessor.componentType)
-            * tinygltf::GetNumComponentsInType(accessor.type);
+        size_t element_size = tinygltf::GetComponentSizeInBytes(accessor.componentType) * tinygltf::GetNumComponentsInType(accessor.type);
         out_stride_bytes = buffer_view.byteStride > 0 ? buffer_view.byteStride : element_size;
 
         return buffer.data.data() + buffer_view.byteOffset + accessor.byteOffset;
@@ -110,7 +244,6 @@ namespace bige {
         if (pos_it == prim.attributes.end()) {
             return nullptr;  // no geometry
         }
-
         auto positions = read_vec3(gltf, pos_it->second);
 
         // normals & uvs optional — fill with defaults if absent
@@ -118,8 +251,7 @@ namespace bige {
         auto norm_it = prim.attributes.find("NORMAL");
         if (norm_it != prim.attributes.end()) {
             normals = read_vec3(gltf, norm_it->second);
-        }
-        else {
+        } else {
             normals.assign(positions.size(), glm::vec3(0.0f, 1.0f, 0.0f));
         }
 
@@ -127,11 +259,9 @@ namespace bige {
         auto uv_it = prim.attributes.find("TEXCOORD_0");
         if (uv_it != prim.attributes.end()) {
             uvs = read_vec2(gltf, uv_it->second);
-        }
-        else {
+        } else {
             uvs.assign(positions.size(), glm::vec2(0.0f, 0.0f));
         }
-
 
         std::vector<glm::vec4> tangents;
         auto tangent_it = prim.attributes.find("TANGENT");
@@ -206,7 +336,7 @@ namespace bige {
         return loaded_textures[img_idx];
     }
 
-    void gltf_loader::traverse_nodes(const tinygltf::Model& gltf, int node_idx, const glm::mat4& parent_transform, model& result, const bige::material_factory& make_material, const std::vector<std::shared_ptr<bige::texture>>& loaded_textures) {
+    void gltf_loader::traverse_nodes(const tinygltf::Model& gltf, int node_idx, const glm::mat4& parent_transform, model& result, const std::vector<std::shared_ptr<bige::texture>>& loaded_textures) {
         const auto& node = gltf.nodes[node_idx];
 
         // Build this node's local transform
@@ -242,6 +372,7 @@ namespace bige {
             for (const auto& prim : gltf_mesh.primitives) {
                 auto built_mesh = build_mesh(gltf, prim);
                 if (!built_mesh) continue;
+                built_mesh->name = gltf_mesh.name;
 
                 auto p = std::make_unique<model::primitive>();
                 p->mesh = std::move(built_mesh);
@@ -250,10 +381,11 @@ namespace bige {
                     auto base_color_tex = resolve_base_color_texture(gltf, gltf.materials[prim.material], loaded_textures);
                     auto normal_tex = resolve_normal_texture(gltf, gltf.materials[prim.material], loaded_textures);
 					auto rough_metal_tex = resolve_metallic_roughness_texture(gltf, gltf.materials[prim.material], loaded_textures);
-                    p->material = make_material(&gltf.materials[prim.material], base_color_tex, normal_tex, rough_metal_tex);
+                    bige::material* mat = bige::materials::choose_material_tglf((void*)&gltf.materials[prim.material], base_color_tex, normal_tex, rough_metal_tex);
+                    p->material.reset(mat);
                 }
                 else {
-                    p->material = make_material(nullptr, nullptr, nullptr, nullptr);
+                    p->material.reset(new bige::materials::solid_color_material(glm::vec4(1.0f, 1.0f, 1.0f, 0.0f)));
                 }
                 result.add_primitive(std::move(p));
             }
@@ -261,12 +393,11 @@ namespace bige {
 
         // Recurse into children
         for (int child_idx : node.children)
-            traverse_nodes(gltf, child_idx, world, result, make_material, loaded_textures);
+            traverse_nodes(gltf, child_idx, world, result, loaded_textures);
     }
 
     // ---------- top-level load ----------
-
-    std::unique_ptr<model> gltf_loader::load(const std::string& path,const material_factory& make_material) {
+    std::unique_ptr<model> gltf_loader::load(const std::string& path) {
         _log("gltf loader");
 
         tinygltf::TinyGLTF loader;
@@ -317,7 +448,7 @@ namespace bige {
         auto result = std::make_unique<model>();
         const auto& scene = gltf.scenes[gltf.defaultScene >= 0 ? gltf.defaultScene : 0];
         for (int root_node : scene.nodes) {
-            traverse_nodes(gltf, root_node, glm::mat4(1.0f), *result, make_material, loaded_textures);
+            traverse_nodes(gltf, root_node, glm::mat4(1.0f), *result, loaded_textures);
         }
         return result;
     }

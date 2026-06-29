@@ -1,4 +1,7 @@
 #pragma once
+
+#include <bige-scene.h>
+
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
@@ -21,11 +24,12 @@ namespace we {
 
 	struct editor_gui {
 		void prepare(GLFWwindow* wnd);
-		void set_gui();
+		void set_gui(bige::scene* s);
 		void render() {
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		}
+		bool load_tree_view = true;
 	};
 
 }

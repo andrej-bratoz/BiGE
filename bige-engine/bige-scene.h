@@ -12,6 +12,9 @@ namespace bige {
 		float ambient_strength = 0.85f;
 		float azimuth = -30.0f; // horizontal angle in degrees
 		float elevation = 45.0f; // vertical angle in degrees
+
+		// PBR material factors -- these are not part of the light itself, but are included here for convenience in the scene state.
+		
 	};
 
 
