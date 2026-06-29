@@ -5,13 +5,6 @@ namespace bige {
 	namespace state_cb {
 		BIGE_ENGINE_DECLARE_STATE_CB(trace_logger);
 		BIGE_ENGINE_DECLARE_STATE_CB(message_box);
-		struct world_editor_callback : bige::engine_state_impl::state_cb {
-			world_editor_callback() {}
-			world_editor_callback(bige::engine* engine) {}
-			virtual void operator()(const std::string& key, const bige::engine_state_impl::state_variant& value) override; bool is_async() const override {
-				return false;
-			}
-		};
 		BIGE_ENGINE_DECLARE_STATE_PARAM_CB(window_color_callback, bige::engine*, engine);
 	}
 	namespace state {

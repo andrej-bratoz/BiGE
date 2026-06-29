@@ -191,25 +191,19 @@ namespace bige {
 
 
 	struct engine {
-		engine() : m_window(nullptr) {}
+		engine() {}
 		bool initialize();
 		void run();
 		void shutdown();
 		void set_scene(std::shared_ptr<bige::scene> scene);
 		float delta_time() const;
-		bige::Window& window() { return *m_window; }
-		//bige::shader_cache& shader_cache() { return m_shader_cache; }
 		void register_state_callbacks();
 
 	private:
-		std::unique_ptr<bige::Window> m_window;
 		std::shared_ptr<bige::scene> m_scene;
 		float m_last_time = 0.0f;
 		float m_delta_time = 0.0f;
 		int m_frame_count = 0;
-		
-		//bige::shader_cache m_shader_cache;
-
 	};
 	struct engine_state {
 		void state_set(const std::string& key, const engine_state_impl::state_variant& value, bool notify = true) {

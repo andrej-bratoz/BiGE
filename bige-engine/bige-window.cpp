@@ -1,6 +1,9 @@
 #include <GLFW/glfw3.h>
 #include <bige-window.h>
 #include <bige-camera.h>
+#ifdef BIGE_ENGINE_HAS_EDITOR
+#	include <we-input-events.h>
+#endif
 
 namespace bige {
 	Window::Window(int width, int height, const std::string& name) : 
@@ -20,35 +23,13 @@ namespace bige {
 		//
 		glfwSetFramebufferSizeCallback(m_handle, [](GLFWwindow* window, int width, int height) {
 			glViewport(0, 0, width, height);
-			bige::Window::width = width;
-			bige::Window::height = height;
+			bige::Window::engine_window->m_width = width;
+			bige::Window::engine_window->m_height = height;
 		});
-		glfwSetMouseButtonCallback(m_handle, [](GLFWwindow* window, int button, int action, int mods) {
-			if (!Window::g_wnd) return;
-			if (button == GLFW_MOUSE_BUTTON_LEFT) {
-				Window::g_wnd->m_rotating = (action == GLFW_PRESS);
-				if (Window::g_wnd->m_rotating) glfwGetCursorPos(window, &Window::g_wnd->m_last_x, &Window::g_wnd->m_last_y);
-			}
-			//
-			if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
-				Window::g_wnd->m_panning = (action == GLFW_PRESS);
-				if (Window::g_wnd->m_panning) glfwGetCursorPos(window, &Window::g_wnd->m_last_x, &Window::g_wnd->m_last_y);
-			}
-		});
-		glfwSetCursorPosCallback(m_handle, [](GLFWwindow* window, double xpos, double ypos) {
-			if(!Window::g_wnd) return;
-			float xoffset = static_cast<float>(xpos - Window::g_wnd->m_last_x);
-			float yoffset = static_cast<float>(ypos - Window::g_wnd->m_last_y);
-			Window::g_wnd->m_last_x = xpos;
-			Window::g_wnd->m_last_y = ypos;
-
-			if (Window::g_wnd->m_rotating) bige::orbit_camera::instance->rotate(xoffset, -yoffset);
-			if (Window::g_wnd->m_panning)  bige::orbit_camera::instance->pan(xoffset, yoffset);
-		});
-		glfwSetScrollCallback(m_handle, [](GLFWwindow* window, double xoffset, double yoffset) {
-			if (!Window::g_wnd) return;
-			bige::orbit_camera::instance->zoom((float)yoffset);
-		});
+#ifdef BIGE_ENGINE_HAS_EDITOR
+		// since only called once, we can "leak" the memory here, as it will be used for the lifetime of the application
+		new we::register_editor_input_events(m_handle);
+#endif
 		return true;
 	}
 

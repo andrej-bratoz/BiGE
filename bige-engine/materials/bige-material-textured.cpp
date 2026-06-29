@@ -16,8 +16,8 @@ namespace bige { namespace materials {
 			base_color_texture->bind(0);
 		}
 		auto view = bige::orbit_camera::instance->get_view_matrix();
-		glm::mat4 projection = glm::perspective(glm::radians(bige::orbit_camera::instance->fov), 
-			(float)bige::Window::width / (float)bige::Window::height, 
+		glm::mat4 projection = glm::perspective(glm::radians(bige::orbit_camera::instance->fov),
+			(float)bige::Window::engine_window->m_width / (float)bige::Window::engine_window->m_height,
 			bige::orbit_camera::instance->near_plane, bige::orbit_camera::instance->far_plane);
 
 		push_uniform("uModel", t.world_matrix);

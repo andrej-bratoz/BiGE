@@ -40,6 +40,7 @@ namespace bige {
 		float movement_speed;
 		float near_plane = 0.1f;
 		float far_plane = 100000.0f;
+		float speed_multiplier = 1.0f;
 
 		orbit_camera(glm::vec3 target = glm::vec3(0.0f),
 					float distance = ORBIT_DISTANCE,

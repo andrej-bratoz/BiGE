@@ -10,17 +10,12 @@ namespace bige {
 		void* handle() const { return m_handle; }
 		void set_background_color(float r, float g, float b, float a = 1.0f);
 		~Window();
-		inline static Window* g_wnd = nullptr;
-		inline static int width;
-		inline static int height;
+		inline static std::unique_ptr<Window> engine_window = nullptr;
+		int m_width;
+		int m_height;
 	private:
 		GLFWwindow* m_handle;
-		int m_width, m_height;
 		std::string m_name;
-		bool m_rotating = false;
-		double m_last_x = 0.0, m_last_y = 0.0;
-		bool m_panning = false;
-
 	};
 
 // if underlying API  is OpenGL

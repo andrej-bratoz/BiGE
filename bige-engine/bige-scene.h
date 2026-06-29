@@ -10,6 +10,8 @@ namespace bige {
 		glm::vec3 light_color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glm::vec3 ambient_color = glm::vec3(1.0f, 1.0f, 1.0f);
 		float ambient_strength = 0.85f;
+		float azimuth = -30.0f; // horizontal angle in degrees
+		float elevation = 45.0f; // vertical angle in degrees
 	};
 
 
