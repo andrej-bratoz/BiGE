@@ -17,6 +17,7 @@ namespace bige {
 			});
 
 			push_uniform("uBaseColorSampler", 0);
+			name = BIGE_NAMEOF(bige::materials::lit_material);
 		}
 
 		void lit_material::update_uniform(bige::transform& t) {

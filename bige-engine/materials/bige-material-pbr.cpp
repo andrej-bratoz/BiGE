@@ -20,6 +20,7 @@ namespace bige { namespace materials {
 		push_uniform("uBaseColorSampler", 0);
 		push_uniform("uNormalSampler", 1);
 		push_uniform("uMetallicRoughnessSampler", 2);
+		name = BIGE_NAMEOF(bige::materials::pbr_material);
 	}
 
 	void pbr_material::update_uniform(bige::transform& t) {

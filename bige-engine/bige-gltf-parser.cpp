@@ -1,6 +1,7 @@
 #include <bige-gltf-parser.h>
 #include <bige-logging.h>
 #include <bige-material.h>
+#include <bige-settings.h>
 #include <materials/bige-materials.h>
 //
 #include <glm/vec3.hpp>
@@ -394,6 +395,10 @@ namespace bige {
         // Recurse into children
         for (int child_idx : node.children)
             traverse_nodes(gltf, child_idx, world, result, loaded_textures);
+    }
+
+    std::unique_ptr<model> gltf_loader::load_from_assets(const std::string& path) {
+        return load(bige::settings::assets_folder() + "\\" + path);
     }
 
     // ---------- top-level load ----------

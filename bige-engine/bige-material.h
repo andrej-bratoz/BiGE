@@ -44,6 +44,8 @@ namespace bige {
 		std::vector<std::shared_ptr<bige::shader>> shaders;
 		std::shared_ptr<bige::shader_program> program = nullptr;
 		std::map<std::string, uniform_val> uniform_locations;
+		//
+		std::string name;
 
 		void register_uniform(const std::string& name);
 		void register_uniform(const std::initializer_list<std::string>& names);

@@ -34,8 +34,6 @@ namespace bige { namespace materials {
 		// Basic directional ("sun") light. Hardcoded here for now --
 		// promote these to scene/engine-level settings once you want
 		// more than one light or to tweak it without recompiling.
-		glm::vec3 light_direction = glm::normalize(glm::vec3(-0.3f, -1.0f, -0.2f));
-		glm::vec3 light_color = glm::vec3(1.0f, 1.0f, 1.0f);
 		float specular_strength = 0.5f;
 		float shininess = 32.0f;
 		float alpha_cutoff = 0.5f; // matches glTF's default alphaCutoff for MASK materials

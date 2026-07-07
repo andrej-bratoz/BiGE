@@ -8,6 +8,7 @@ namespace bige { namespace materials {
 		attach_shader(bige::shader_cache::instance()->get(VERTEX_OFFSET_3D));
 		attach_shader(bige::shader_cache::instance()->get(FRAGMENT_SOLID_COLOR_RGBA));
 		register_uniform({ "uColor", "uOffset"});
+		name = BIGE_NAMEOF(bige::materials::solid_color_material);
 	}
 
 	void solid_color_material::update_uniform(bige::transform& t) {

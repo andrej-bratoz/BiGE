@@ -83,9 +83,6 @@ namespace biwe {
 	};
 
 	struct world_scene : bige::scene {
-		
 		world_scene();
-
-		//inline static std::unique_ptr<world_scene> instance = std::make_unique<world_scene>();
 	};
 }

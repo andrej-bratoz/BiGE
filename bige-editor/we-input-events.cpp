@@ -1,10 +1,17 @@
 #include <bige-camera.h>
 #include <bige-state_cb.h>
 #include <bige-scene.h>
+#include <bige-camera.h>
+#include <nlohmann/json.hpp>
 #include "we-input-events.h"
 #include "we-state.h"
+#ifdef WIN32
+#	include <Windows.h>
+#endif
 
 namespace we {
+	char save_as[MAX_PATH]{};
+	char gltf_file[MAX_PATH]{};
 	void world_scene_mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
 		if (bige::Window::engine_window->m_block_events) return;
 		if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) { return; }
@@ -39,6 +46,7 @@ namespace we {
 	}
 
 	void world_scene_scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+		if (bige::Window::engine_window->m_block_events) return;
 		if (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) { return; }
 		bige::orbit_camera::instance->zoom((float)yoffset);
 	}
@@ -91,7 +99,9 @@ namespace we {
 
 		ImGui::Text("Ambient strength = %f", bige::scene::m_sun->ambient_strength);
 		ImGui::Text("Ambient light direction [ %f, %f, %f ]", bige::scene::m_sun->direction.x, bige::scene::m_sun->direction.y, bige::scene::m_sun->direction.z);
-
+		
+		auto camera_pos = bige::orbit_camera::instance->get_position();
+		ImGui::Text("Camera position [ %f, %f, %f ]", camera_pos.x, camera_pos.y, camera_pos.z);
 
 		static int viewPortx = 0;
 		static int viewPorty = 0;
@@ -110,26 +120,43 @@ namespace we {
 				if (ImGui::TreeNode("Object: 1")) {
 					for (const auto& prim : obj->m_model->primitives_ref()) {
 
-						std::string mesh_info = "Mesh: " + prim->mesh->name;
+						std::string mesh_info = "Mesh: " + prim->mesh->name + "(" + std::to_string(j++) + ")";
 						if (ImGui::TreeNode(mesh_info.c_str())) {
-							static const char* selected = "Material 2";
-
-							std::string mesh_info = "material: " + std::to_string(j++);
-
-							if (ImGui::BeginCombo(mesh_info.c_str(), selected)) {
-								const char* options[] = { "Material 1", "Material 2", "Material 3" };
-								for (const char* opt : options) {
-									bool is_selected = (selected == opt);
-									if (ImGui::Selectable(opt, is_selected))
-										selected = opt;
-									if (is_selected) {
-										ImGui::SetItemDefaultFocus();
-										int k = 0;
-									}
-								}
-								ImGui::EndCombo();
+							static const char* options[] = {
+									BIGE_NAMEOF_C(bige::materials::pbr_material),
+									BIGE_NAMEOF_C(bige::materials::lit_material_normals),
+									BIGE_NAMEOF_C(bige::materials::lit_material),
+									BIGE_NAMEOF_C(bige::materials::textured_material)
+							};
+							int selected_index = 0;
+							
+							if(prim->material->name == BIGE_NAMEOF_C(bige::materials::pbr_material)) {
+								selected_index = 0;
+							} else if(prim->material->name == BIGE_NAMEOF_C(bige::materials::lit_material_normals)) {
+								selected_index = 1;
+							} else if(prim->material->name == BIGE_NAMEOF_C(bige::materials::lit_material)) {
+								selected_index = 2;
+							} else if(prim->material->name == BIGE_NAMEOF_C(bige::materials::textured_material)) {
+								selected_index = 3;
 							}
-							ImGui::Text("Some useful info");
+
+							auto selected = ImGui::Combo(mesh_info.c_str(), &selected_index, options, IM_ARRAYSIZE(options));
+							if(selected) {
+								switch (selected_index) {
+									case 0:
+										prim->change_material(BIGE_NAMEOF_C(bige::materials::pbr_material));
+										break;
+									case 1:
+										prim->change_material(BIGE_NAMEOF_C(bige::materials::lit_material_normals));
+										break;
+									case 2:
+										prim->change_material(BIGE_NAMEOF_C(bige::materials::lit_material));	
+										break;
+									case 3:
+										prim->change_material(BIGE_NAMEOF_C(bige::materials::textured_material));
+										break;
+								}
+							}
 							ImGui::TreePop();
 						}
 					}
@@ -137,6 +164,73 @@ namespace we {
 				}
 			}
 			ImGui::TreePop();
+		}
+		ImGui::InputText(":", gltf_file, sizeof(gltf_file));
+		ImGui::SameLine();
+		if (ImGui::Button("... (GLB Path)")) {
+			char szFile[MAX_PATH] = "";
+			OPENFILENAME ofn = {};
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = nullptr;
+			ofn.lpstrFile = szFile;
+			ofn.nMaxFile = MAX_PATH;
+			ofn.lpstrFilter = "Scene Files (*.glb)\0*.glb\0All Files (*.*)\0*.*\0";
+			ofn.nFilterIndex = 1;
+			ofn.lpstrDefExt = "glb";
+			ofn.lpstrTitle = "Save Scene";
+			ofn.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
+
+			if (GetOpenFileNameA(&ofn)) {
+				strcpy(gltf_file, szFile);
+			}
+		}
+
+		ImGui::InputText("##Save As:", save_as, sizeof(save_as));
+		ImGui::SameLine();
+		if (ImGui::Button("...")) {
+#ifdef WIN32
+			// Open a file dialog to select a file path
+			char szFile[MAX_PATH] = "";
+			OPENFILENAME ofn = {};
+			ofn.lStructSize = sizeof(ofn);
+			ofn.hwndOwner = nullptr;
+			ofn.lpstrFile = szFile;
+			ofn.nMaxFile = MAX_PATH;
+			ofn.lpstrFilter = "Scene Files (*.bisc)\0*.bisc\0All Files (*.*)\0*.*\0";
+			ofn.nFilterIndex = 1;
+			ofn.lpstrDefExt = "bisc";
+			ofn.lpstrTitle = "Save Scene";
+			ofn.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
+
+			if (GetSaveFileName(&ofn)) {
+				strcpy(save_as, szFile);
+			}
+#endif
+		}
+		if (ImGui::Button("Save Object")) {
+			
+			std::ifstream file_gltf(gltf_file);
+			if (!file_gltf.is_open()) return;
+
+			file_gltf.seekg(0, std::ios::end);
+			int size = file_gltf.tellg();
+			file_gltf.seekg(0, std::ios::beg);
+			std::vector<uint8_t> buffer(size);
+			file_gltf.read((char*)buffer.data(), size);
+			file_gltf.close();
+			
+			nlohmann::json j;
+			j["far_plane"] = bige::orbit_camera::instance->far_plane;
+			j["near_plane"] = bige::orbit_camera::instance->near_plane;
+			j["azimuth"] = bige::scene::m_sun->azimuth;
+			j["elevation"] = bige::scene::m_sun->elevation;
+			j["ambient_strength"] = bige::scene::m_sun->ambient_strength;
+			j["camera_position"] = { bige::orbit_camera::instance->get_position().x, bige::orbit_camera::instance->get_position().y, bige::orbit_camera::instance->get_position().z }; 
+			j["object_type"] = "gltf";
+			j["object"] = nlohmann::json::binary_t(buffer);
+			std::ofstream file(save_as);
+			file << j << std::endl;
+			file.close();
 		}
 		ImGui::End();
 	}

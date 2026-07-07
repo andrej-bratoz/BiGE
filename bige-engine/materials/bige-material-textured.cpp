@@ -10,6 +10,7 @@ namespace bige { namespace materials {
 
 		register_uniform({ "uModel", "uView", "uProjection" });
 		push_uniform("uBaseColorSampler", 0);
+		name = BIGE_NAMEOF(bige::materials::textured_material);
 	}
 	void textured_material::update_uniform(bige::transform& t) {
 		if (base_color_texture) {
