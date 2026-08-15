@@ -1,9 +1,13 @@
 
 
 function (bige_use_library_rel_deb TGT LIB)
-    target_link_libraries(${TGT} PRIVATE
-        $<IF:$<CONFIG:Debug>,${LIB}d.lib,${LIB}.lib>
-    )
+    if(WIN32)
+        target_link_libraries(${TGT} PRIVATE
+            $<IF:$<CONFIG:Debug>,${LIB}d.lib,${LIB}.lib>
+        )
+    else()
+         target_link_libraries(${TGT} PRIVATE "lib${LIB}.a")
+    endif()
 endfunction()
 
 function (bige_use_library TGT LIB)
@@ -25,6 +29,7 @@ function(bige_create_gui_wrapper)
     )
     target_include_directories(bige_imgui_wrapper PRIVATE "${BIGECC_DIR}/imgui")
     target_include_directories(bige_imgui_wrapper PRIVATE "${BIGECC_DIR}/imgui/backends")
+    add_dependencies("bige_imgui_wrapper" ${EXTERN_LIBS_PROJECT_NAME})
     bige_use_extern_library_glfw("bige_imgui_wrapper")
 
 endfunction()
@@ -39,7 +44,7 @@ function(bige_use_extern_library NAME TGT)
 
     if(${NAME} STREQUAL "glfw")
         target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/glfw/include")
-        bige_use_library(${TGT} "${BIGECC_DIR}/glfw/lib/glfw3.lib")
+        bige_use_library_rel_deb(${TGT} "${BIGECC_DIR}/glfw/lib/glfw3")
     endif()
 
     if(${NAME} STREQUAL "json")
@@ -48,7 +53,7 @@ function(bige_use_extern_library NAME TGT)
 
     if(${NAME} STREQUAL "glm")
         target_include_directories(${TGT} PUBLIC "${BIGECC_DIR}/glm/include")
-        bige_use_library(${TGT} "${BIGECC_DIR}/glm/lib/glm.lib")
+        bige_use_library_rel_deb(${TGT} "${BIGECC_DIR}/glm/lib/glm")
     endif()
 
     if(${NAME} STREQUAL "glad")
@@ -213,4 +218,5 @@ function(use_bige_engine OPTIONS_LIST TGT)
     bige_use_extern_library_glm(${TGT})
     bige_use_extern_library_json(${TGT})
     bige_use_extern_library_gltf(${TGT})
+    add_dependencies(${TGT} ${EXTERN_LIBS_PROJECT_NAME})
 endfunction()

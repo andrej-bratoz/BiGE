@@ -9,7 +9,7 @@ namespace biwe {
 
 	scene_object::scene_object() {
 		bige::gltf_loader loader;
-		auto obj = loader.load_from_assets("greek_temple_scan.glb");
+		auto obj = loader.load_from_assets("psx_temple_island.glb");
 		attach_model(std::move(obj));
 	}
 

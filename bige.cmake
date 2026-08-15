@@ -1,10 +1,10 @@
 include("${BIGE_EDITOR_DIR}/engine-editor.cmake")
 include("${BIGE_ENGINE_DIR}/bige-engine.cmake")
 
-set(GAME_NAME "BinkoAdventure")
+set(GAME_NAME "bige_sample_game")
 set(GAME_FOLDER "badv")
-set(TESTS_NAME "BiGETests")
-set(WORLD_EDITOR_NAME "BiGEWorldEditor")
+set(TESTS_NAME "bige_tests")
+set(WORLD_EDITOR_NAME "bige_world_editor")
 
 file(GLOB SOURCE_FILES_MAIN "${BIGE_GAME_DIR}/badv/*cpp")
 file(GLOB SOURCE_FILES_MAIN2 "${BIGE_GAME_DIR}/badv/*h")
@@ -39,4 +39,3 @@ endmacro()
 copy_folder_to_bin( ${GAME_NAME} "${BIGE_GAME_DIR}/${GAME_FOLDER}/config" "config")
 copy_folder_to_bin( ${GAME_NAME} "${BIGE_GAME_DIR}/${GAME_FOLDER}/assets" "assets")
 copy_folder_to_bin( ${GAME_NAME} "${BIGE_ENGINE_DIR}/shaders" "shaders")
-
