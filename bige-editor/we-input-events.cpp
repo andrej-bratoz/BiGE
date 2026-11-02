@@ -5,9 +5,11 @@
 #include <nlohmann/json.hpp>
 #include "we-input-events.h"
 #include "we-state.h"
+#include "editor-scene.h"
 #ifdef WIN32
 #	include <Windows.h>
 #endif
+#include <bige-gltf-parser.h>
 
 namespace we {
 	char save_as[MAX_PATH]{};
@@ -113,11 +115,62 @@ namespace we {
 			glViewport(viewPortx, viewPorty, bige::Window::engine_window->m_width, bige::Window::engine_window->m_height);
 		}
 		ImGui::Checkbox("Block events", &bige::Window::engine_window->m_block_events);
-		
-		int j = 0, i = 0;
-		if (ImGui::TreeNode("Scene")) {
+
+		{
+			if (ImGui::Button("... (Add GLB Object)")) {
+				char szFile[MAX_PATH] = "";
+				OPENFILENAME ofn = {};
+				ofn.lStructSize = sizeof(ofn);
+				ofn.hwndOwner = nullptr;
+				ofn.lpstrFile = szFile;
+				ofn.nMaxFile = MAX_PATH;
+				ofn.lpstrFilter = "Scene Files (*.glb)\0*.glb\0All Files (*.*)\0*.*\0";
+				ofn.nFilterIndex = 1;
+				ofn.lpstrDefExt = "glb";
+				ofn.lpstrTitle = "Load another object";
+				ofn.Flags = OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
+
+				if (GetOpenFileNameA(&ofn)) {
+					bige::gltf_loader loader;
+					auto obj = loader.load(szFile);
+					std::unique_ptr<biwe::scene_object> scene_obj = std::make_unique<biwe::scene_object>();
+					scene_obj->attach_model(std::move(obj));
+					s->m_objects.push_back(std::move(scene_obj));
+				}
+			}
+		}
+
+
+		static bool apply_individual_materials = true;
+		// Combo box to select a shader to apply to all meshes in the scene
+		{
+			static int selected_index = 0;
+			static const char* options[] = {
+				"Manage individual shaders",
+				BIGE_NAMEOF_C(bige::materials::pbr_material),
+				BIGE_NAMEOF_C(bige::materials::lit_material_normals),
+				BIGE_NAMEOF_C(bige::materials::lit_material),
+				BIGE_NAMEOF_C(bige::materials::textured_material)
+			};
+			auto selected = ImGui::Combo("Apply shader to all...", &selected_index, options, IM_ARRAYSIZE(options));
+			if (selected) {
+				if (selected_index > 0) {
+					for (const auto& obj : s->objects_ref()) {
+						for (const auto& prim : obj->m_model->primitives_ref()) {
+							prim->change_material(options[selected_index]);
+						}
+					}
+				}
+			}
+			apply_individual_materials = selected_index <= 0;
+		}
+
+
+		int j = 0, i = 0, k = 0;
+		if (apply_individual_materials && ImGui::TreeNode("Scene")) {
 			for (const auto& obj : s->objects_ref()) {
-				if (ImGui::TreeNode("Object: 1")) {
+				k++;
+				if (ImGui::TreeNode(("Object: " + std::to_string(k)).c_str())) {
 					for (const auto& prim : obj->m_model->primitives_ref()) {
 
 						std::string mesh_info = "Mesh: " + prim->mesh->name + "(" + std::to_string(j++) + ")";

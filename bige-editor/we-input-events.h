@@ -6,6 +6,7 @@
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
+#include <map>
 
 namespace we {
 	void world_scene_mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
@@ -30,6 +31,7 @@ namespace we {
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		}
 		bool load_tree_view = true;
+		std::map<std::string, std::string> m_map_original_adjusted_names;
 	};
 
 }
