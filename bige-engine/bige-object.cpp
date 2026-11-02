@@ -48,6 +48,7 @@ void bige::objects::object_3d::dispatch(dispatch_call_id id, void* engine) {
 
 void bige::objects::object_3d::on_prepare(void* engine) {
 	if (m_prepared) { return; }
+	if (!m_model) { return; }
 
 	m_vaos.resize(m_model->primitives_count());
 	m_vbos.resize(m_model->primitives_count());
@@ -98,6 +99,7 @@ void bige::objects::object_3d::on_prepare(void* engine) {
 }
 
 void bige::objects::object_3d::on_draw(void* engine) {
+	if (!m_model) { return; }
 	for (int i = 0; i < m_model->primitives_count(); i++) {
 		auto& primitive = m_model->primitives_ref()[i];
 		primitive->material->set_uniforms(primitive->transform); // bind this primitive's program/texture/uModel right before its draw call
@@ -118,6 +120,7 @@ void bige::objects::object_3d::on_move(void* engine) {}
 void bige::objects::object_3d::on_script(void* engine) {}
 
 void bige::objects::object_3d::on_teardown(void* engine) {
+	if (!m_model) { return; }
 	if (is_dead()) { return; }
 	glUseProgram(0);
 	for (int i = 0; i < m_model->primitives_count(); i++) {
@@ -131,6 +134,7 @@ void bige::objects::object_3d::on_teardown(void* engine) {
 }
 
 void bige::objects::object_3d::on_material(void* engine) {
+	if (!m_model) { return; }
 	for (auto& primitive : m_model->primitives_ref()) {
 		primitive->material->set_uniforms(primitive->transform);
 	}

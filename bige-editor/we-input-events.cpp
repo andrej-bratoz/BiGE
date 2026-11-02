@@ -10,6 +10,7 @@
 #	include <Windows.h>
 #endif
 #include <bige-gltf-parser.h>
+#include <commdlg.h>
 
 namespace we {
 	char save_as[MAX_PATH]{};
@@ -74,6 +75,16 @@ namespace we {
 		ImGui::NewFrame();
 
 		bige::engine_state st;
+
+		for (const auto& obj : s->objects_ref()) {
+			if (!obj->m_model) {
+				s->m_objects					
+					.erase(std::remove(s->m_objects.begin(),
+						s->m_objects.end(), obj), s->m_objects.end());
+				break;
+			}
+		
+		}
 
 		ImGui::Begin("Controls");
 		ImGui::SliderFloat("Ambient light strength", &bige::scene::m_sun->ambient_strength, 0.0f, 1.0f);
@@ -156,6 +167,7 @@ namespace we {
 			if (selected) {
 				if (selected_index > 0) {
 					for (const auto& obj : s->objects_ref()) {
+						if (!obj->m_model) continue;
 						for (const auto& prim : obj->m_model->primitives_ref()) {
 							prim->change_material(options[selected_index]);
 						}
